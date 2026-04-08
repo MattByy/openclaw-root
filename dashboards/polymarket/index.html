@@ -534,6 +534,7 @@
   window.__POLYMARKET_WALLET_ADDRESS__ = window.__POLYMARKET_WALLET_ADDRESS__ || null;
   window.__POLYMARKET_PROXY_WALLET__ = window.__POLYMARKET_PROXY_WALLET__ || null;
   window.__GATEWAY_TOKEN__ = window.__GATEWAY_TOKEN__ || null;
+  window.__AGENT_ID__ = window.__AGENT_ID__ || null;
 
   // ================================================================
   // STATE
@@ -1157,7 +1158,10 @@
       setChatConn('on', 'CONNECTED');
       addBubble('Connected to ClawMode gateway.', 'sys');
       // Subscribe to main session messages
-      gwSend({ type: 'req', id: nextId(), method: 'sessions.messages.subscribe', params: { sessionKey: 'main' } });
+      {
+        const _sk = window.__AGENT_ID__ ? ('agent:' + window.__AGENT_ID__ + ':main') : 'main';
+        gwSend({ type: 'req', id: nextId(), method: 'sessions.messages.subscribe', params: { sessionKey: _sk } });
+      }
       return;
     }
     // Session message / event
