@@ -1169,8 +1169,42 @@
       const p = frame.payload || frame.params || {};
       const text = p.text || p.content || p.message || '';
       const role = p.role || 'agent';
-      if (text) addBubble(text, role === 'user' ? 'user' : 'agent');
+      if (text) {
+        const cleaned = processClawdashBlocks(text);
+        if (cleaned.trim()) addBubble(cleaned, role === 'user' ? 'user' : 'agent');
+      }
     }
+  }
+
+  // Parse ```clawdash {json} ``` control blocks embedded in agent messages.
+  // Each block calls a window.<fn>(args) and is stripped from the visible text.
+  // Supported fns: addFeedItem, refreshDashboard, updateWallet, updateAgentStatus,
+  //                setStraddleTokens, pushAgentMessage
+  function processClawdashBlocks(text) {
+    const allowed = {
+      addFeedItem: (a) => window.addFeedItem(a.message || a.text || '', a.type || ''),
+      refreshDashboard: () => window.refreshDashboard(),
+      updateWallet: (a) => window.updateWallet(a.address || a.wallet, a.proxy),
+      updateAgentStatus: (a) => window.updateAgentStatus(a),
+      setStraddleTokens: (a) => window.setStraddleTokens(a.up, a.down),
+      pushAgentMessage: (a) => window.pushAgentMessage(a.text || a.message || '')
+    };
+    const re = /```clawdash\s*([\s\S]*?)```/g;
+    return text.replace(re, (_, body) => {
+      try {
+        const obj = JSON.parse(body.trim());
+        const calls = Array.isArray(obj) ? obj : [obj];
+        for (const c of calls) {
+          const fn = allowed[c.fn];
+          if (fn) {
+            try { fn(c.args || {}); } catch (e) { console.warn('clawdash call failed', c.fn, e); }
+          }
+        }
+      } catch (e) {
+        console.warn('clawdash parse failed', e);
+      }
+      return ''; // strip block from visible text
+    });
   }
 
   function handleSlash(text) {
