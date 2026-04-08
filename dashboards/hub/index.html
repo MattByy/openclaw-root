@@ -109,26 +109,37 @@
     }
   };
 
-  // Replaced at deploy time: e.g. "polymarket,scout"
+  // Replaced at deploy time. Format: "instanceId:dashSlug,instanceId2:dashSlug2"
+  // (legacy fallback: plain comma list of dash slugs)
   const AGENTS_RAW = '__CLAWMODE_AGENTS_PLACEHOLDER__';
-  const active = (AGENTS_RAW && !AGENTS_RAW.includes('PLACEHOLDER'))
-    ? AGENTS_RAW.split(',').map(s => s.trim()).filter(Boolean)
-    : Object.keys(AGENT_REGISTRY);
+  let entries = [];
+  if (AGENTS_RAW && !AGENTS_RAW.includes('PLACEHOLDER')) {
+    entries = AGENTS_RAW.split(',').map(s => s.trim()).filter(Boolean).map(pair => {
+      if (pair.includes(':')) {
+        const [instanceId, dashSlug] = pair.split(':');
+        return { instanceId: instanceId.trim(), dashSlug: dashSlug.trim() };
+      }
+      // legacy: single token = dashSlug (instanceId = dashSlug)
+      return { instanceId: pair, dashSlug: pair };
+    });
+  } else {
+    entries = Object.keys(AGENT_REGISTRY).map(s => ({ instanceId: s, dashSlug: s }));
+  }
 
   const grid = document.getElementById('grid');
-  const shown = active.filter(slug => AGENT_REGISTRY[slug]);
+  const shown = entries.filter(e => AGENT_REGISTRY[e.dashSlug]);
   document.getElementById('activeCount').textContent = shown.length;
 
   if (!shown.length) {
     grid.innerHTML = '<div class="empty">No active agents configured.</div>';
   } else {
-    for (const slug of shown) {
-      const a = AGENT_REGISTRY[slug];
+    for (const e of shown) {
+      const a = AGENT_REGISTRY[e.dashSlug];
       const hex = a.color.replace('#','');
       const dim = 'rgba(' + parseInt(hex.slice(0,2),16) + ',' + parseInt(hex.slice(2,4),16) + ',' + parseInt(hex.slice(4,6),16) + ',0.3)';
       const card = document.createElement('a');
       card.className = 'card';
-      card.href = '/' + a.slug + '/';
+      card.href = '/' + e.instanceId + '/';
       card.style.setProperty('--c', a.color);
       card.style.setProperty('--cdim', dim);
       card.innerHTML = '<h3>' + a.name + ' // ' + a.slug.toUpperCase() + '</h3>'
