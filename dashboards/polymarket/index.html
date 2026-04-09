@@ -1257,7 +1257,23 @@
       return;
     }
     // Session message / event
-    if (frame.type === 'event' || frame.event === 'session.message') {
+    // --- Streaming agent events (event: "agent", payload.stream: "assistant"|"user"|...)
+    if (frame.type === 'event' && frame.event === 'agent') {
+      const p = frame.payload || {};
+      const stream = p.stream || '';
+      const runId = p.runId || '';
+      const data = p.data || {};
+      const role = (stream === 'user') ? 'user' : 'agent';
+      // Full text snapshot OR incremental delta
+      const fullText = data.text || '';
+      const delta = data.delta || '';
+      if (fullText || delta) {
+        upsertStreamingBubble(runId, role, fullText, delta);
+      }
+      return;
+    }
+    // --- Legacy / non-streaming session message frames
+    if (frame.type === 'event' && frame.event === 'session.message') {
       const p = frame.payload || frame.params || {};
       const text = p.text || p.content || p.message || '';
       const role = p.role || 'agent';
@@ -1265,7 +1281,32 @@
         const cleaned = processClawdashBlocks(text);
         if (cleaned.trim()) addBubble(cleaned, role === 'user' ? 'user' : 'agent');
       }
+      return;
     }
+  }
+
+  // Track one streaming bubble per runId; finalize with clawdash parsing on latest snapshot.
+  const _streamBubbles = {};
+  function upsertStreamingBubble(runId, role, fullText, delta) {
+    let entry = _streamBubbles[runId];
+    // Remove any lingering typing indicator bubble when stream starts
+    try {
+      const typings = chatLog.querySelectorAll('.bubble.agent.typing');
+      typings.forEach(t => t.parentNode && t.parentNode.removeChild(t));
+    } catch {}
+    if (!entry) {
+      const el = document.createElement('div');
+      el.className = 'bubble ' + (role === 'user' ? 'user' : 'agent');
+      chatLog.appendChild(el);
+      entry = _streamBubbles[runId] = { el, text: '', role };
+    }
+    // Prefer full snapshot; else append delta
+    if (fullText) entry.text = fullText;
+    else if (delta) entry.text += delta;
+    // Render — strip clawdash control blocks from the VIEW but execute them
+    const cleaned = processClawdashBlocks(entry.text);
+    entry.el.textContent = cleaned;
+    chatLog.scrollTop = chatLog.scrollHeight;
   }
 
   // Parse ```clawdash {json} ``` control blocks embedded in agent messages.
