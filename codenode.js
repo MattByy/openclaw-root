@@ -350,9 +350,9 @@ files.push({
         '  echo "[ClawMode] Hub dashboard copied"',
         'fi',
         '',
-        '# Root index.html redirects / -> /hub/',
+        '# Root index.html redirects / -> /hub/ (preserves ?token= query string)',
         'cat > "$DASH_DEST/index.html" << \'ROOTEOF\'',
-        '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="0;url=./hub/"><title>ClawMode</title></head><body></body></html>',
+        '<!DOCTYPE html><html><head><title>ClawMode</title><script>location.replace("./hub/" + location.search + location.hash);</script></head><body></body></html>',
         'ROOTEOF',
         '',
         // Helper: resolve the matching dashboard folder for an agent slug.

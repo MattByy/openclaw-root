@@ -531,27 +531,25 @@
   // __GATEWAY_TOKEN__ is the auth token for the OpenClaw gateway's
   // control UI protocol (loopback gateway.controlUi.allowInsecureAuth).
   // ================================================================
-  // ---------- AUTH GATE ----------
+  // ---------- AUTH GATE (mirrors clawauth.js) ----------
   (function(){
-    try {
-      var qp = new URLSearchParams(location.search);
-      var t = qp.get('token');
+    if (!window.location.hostname.endsWith('.oc.clawmode.ai')) return;
+    var p = new URLSearchParams(window.location.search);
+    var t = p.get('token');
+    var s = localStorage.getItem('claw_token');
+    var token = t || s;
+    if (token) {
+      localStorage.setItem('claw_token', token);
+      window.__AUTH_TOKEN__ = token;
       if (t) {
-        sessionStorage.setItem('claw_token', t);
-        qp.delete('token');
-        var qs = qp.toString();
+        p.delete('token');
+        var qs = p.toString();
         history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
       }
-      var stored = sessionStorage.getItem('claw_token');
-      if (!stored) {
-        var ctrlHost = location.hostname.replace(/-dash\.oc\./, '.oc.');
-        if (ctrlHost !== location.hostname) {
-          location.href = location.protocol + '//' + ctrlHost + '/';
-          return;
-        }
-      }
-      window.__AUTH_TOKEN__ = stored || t || null;
-    } catch(e) {}
+    } else {
+      var d = window.location.hostname.split('.')[0];
+      window.location.href = 'https://clawmode.ai/gateway?subdomain=' + d;
+    }
   })();
   // ---------- PROXY FETCH ----------
   const PROXY_HOSTS = ['gamma-api.polymarket.com','data-api.polymarket.com','clob.polymarket.com'];
@@ -1134,7 +1132,7 @@
   function nextId() { gwRid += 1; return 'dash-' + gwRid; }
 
   function connectGateway() {
-    GW_TOKEN = window.__GATEWAY_TOKEN__ || (function(){ try { return sessionStorage.getItem('claw_token'); } catch(e) { return null; } })();
+    GW_TOKEN = window.__GATEWAY_TOKEN__ || (function(){ try { return localStorage.getItem('claw_token'); } catch(e) { return null; } })();
     if (!GW_TOKEN) {
       setChatConn('off', 'NO TOKEN');
       addBubble('Agent offline — no gateway token configured. n8n should inject window.__GATEWAY_TOKEN__ at deploy time.', 'sys');
