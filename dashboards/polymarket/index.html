@@ -531,6 +531,40 @@
   // __GATEWAY_TOKEN__ is the auth token for the OpenClaw gateway's
   // control UI protocol (loopback gateway.controlUi.allowInsecureAuth).
   // ================================================================
+  // ---------- AUTH GATE ----------
+  (function(){
+    try {
+      var qp = new URLSearchParams(location.search);
+      var t = qp.get('token');
+      if (t) {
+        sessionStorage.setItem('claw_token', t);
+        qp.delete('token');
+        var qs = qp.toString();
+        history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+      }
+      var stored = sessionStorage.getItem('claw_token');
+      if (!stored) {
+        var ctrlHost = location.hostname.replace(/-dash\.oc\./, '.oc.');
+        if (ctrlHost !== location.hostname) {
+          location.href = location.protocol + '//' + ctrlHost + '/';
+          return;
+        }
+      }
+      window.__AUTH_TOKEN__ = stored || t || null;
+    } catch(e) {}
+  })();
+  // ---------- PROXY FETCH ----------
+  const PROXY_HOSTS = ['gamma-api.polymarket.com','data-api.polymarket.com','clob.polymarket.com'];
+  function pfetch(url, opts) {
+    try {
+      const u = new URL(url, location.href);
+      if (PROXY_HOSTS.includes(u.hostname)) {
+        return fetch('/_proxy?url=' + encodeURIComponent(url), opts);
+      }
+    } catch(e) {}
+    return fetch(url, opts);
+  }
+
   window.__POLYMARKET_WALLET_ADDRESS__ = window.__POLYMARKET_WALLET_ADDRESS__ || null;
   window.__POLYMARKET_PROXY_WALLET__ = window.__POLYMARKET_PROXY_WALLET__ || null;
   window.__GATEWAY_TOKEN__ = window.__GATEWAY_TOKEN__ || null;
@@ -575,7 +609,7 @@
   const hhmmss = () => new Date().toLocaleTimeString('en-US',{hour12:false});
   const hhmm = () => new Date().toLocaleTimeString('en-US',{hour12:false, hour:'2-digit', minute:'2-digit'});
   async function fetchJson(url) {
-    const r = await fetch(url);
+    const r = await pfetch(url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
     return r.json();
   }
@@ -1095,11 +1129,13 @@
     $('chatInput').disabled = !enabled;
     $('chatSend').disabled = !enabled;
   }
+  let GW_TOKEN = null;
   function gwSend(obj) { try { gw.send(JSON.stringify(obj)); } catch {} }
   function nextId() { gwRid += 1; return 'dash-' + gwRid; }
 
   function connectGateway() {
-    if (!window.__GATEWAY_TOKEN__) {
+    GW_TOKEN = window.__GATEWAY_TOKEN__ || (function(){ try { return sessionStorage.getItem('claw_token'); } catch(e) { return null; } })();
+    if (!GW_TOKEN) {
       setChatConn('off', 'NO TOKEN');
       addBubble('Agent offline — no gateway token configured. n8n should inject window.__GATEWAY_TOKEN__ at deploy time.', 'sys');
       return;
@@ -1139,7 +1175,7 @@
           role: 'operator',
           scopes: ['operator.read','operator.write'],
           caps: [], commands: [], permissions: {},
-          auth: { token: window.__GATEWAY_TOKEN__ },
+          auth: { token: GW_TOKEN },
           locale: 'en-US',
           userAgent: 'clawmode-dashboard/1.0'
         }

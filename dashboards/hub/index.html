@@ -4,6 +4,29 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>CLAWMODE // HUB</title>
+<script>
+(function(){
+  try {
+    var qp = new URLSearchParams(location.search);
+    var t = qp.get('token');
+    if (t) {
+      sessionStorage.setItem('claw_token', t);
+      qp.delete('token');
+      var qs = qp.toString();
+      history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+    }
+    var stored = sessionStorage.getItem('claw_token');
+    if (!stored) {
+      var ctrlHost = location.hostname.replace(/-dash\.oc\./, '.oc.');
+      if (ctrlHost !== location.hostname) {
+        location.href = location.protocol + '//' + ctrlHost + '/';
+        return;
+      }
+    }
+    window.__AUTH_TOKEN__ = stored || t || null;
+  } catch(e) {}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -139,7 +162,8 @@
       const dim = 'rgba(' + parseInt(hex.slice(0,2),16) + ',' + parseInt(hex.slice(2,4),16) + ',' + parseInt(hex.slice(4,6),16) + ',0.3)';
       const card = document.createElement('a');
       card.className = 'card';
-      card.href = '/' + e.instanceId + '/';
+      var _tok = ''; try { _tok = sessionStorage.getItem('claw_token') || ''; } catch(_e) {}
+      card.href = '/' + e.instanceId + '/' + (_tok ? ('?token=' + encodeURIComponent(_tok)) : '');
       card.style.setProperty('--c', a.color);
       card.style.setProperty('--cdim', dim);
       card.innerHTML = '<h3>' + a.name + ' // ' + a.slug.toUpperCase() + '</h3>'
