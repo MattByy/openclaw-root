@@ -88,7 +88,7 @@
 <script>
   const AGENT_REGISTRY = {
     polymarket: {
-      name: 'Scout',
+      name: 'POLYMARKET',
       slug: 'polymarket',
       role: 'Prediction Markets',
       color: '#00f5a0',
@@ -137,12 +137,17 @@
   let entries = [];
   if (AGENTS_RAW && !AGENTS_RAW.includes('PLACEHOLDER')) {
     entries = AGENTS_RAW.split(',').map(s => s.trim()).filter(Boolean).map(pair => {
+      let instanceId, dashSlug;
       if (pair.includes(':')) {
-        const [instanceId, dashSlug] = pair.split(':');
-        return { instanceId: instanceId.trim(), dashSlug: dashSlug.trim() };
+        [instanceId, dashSlug] = pair.split(':').map(s => s.trim());
+      } else {
+        instanceId = dashSlug = pair;
       }
-      // legacy: single token = dashSlug (instanceId = dashSlug)
-      return { instanceId: pair, dashSlug: pair };
+      // Defensive: if instanceId is empty or starts with dash, rebuild from dashSlug
+      if (!instanceId || /^-/.test(instanceId)) {
+        instanceId = dashSlug + (instanceId || '');
+      }
+      return { instanceId, dashSlug };
     });
   } else {
     entries = Object.keys(AGENT_REGISTRY).map(s => ({ instanceId: s, dashSlug: s }));
@@ -161,11 +166,11 @@
       const dim = 'rgba(' + parseInt(hex.slice(0,2),16) + ',' + parseInt(hex.slice(2,4),16) + ',' + parseInt(hex.slice(4,6),16) + ',0.3)';
       const card = document.createElement('a');
       card.className = 'card';
-      var _tok = ''; try { _tok = sessionStorage.getItem('claw_token') || ''; } catch(_e) {}
+      var _tok = ''; try { _tok = localStorage.getItem('claw_token') || ''; } catch(_e) {}
       card.href = '/' + e.instanceId + '/' + (_tok ? ('?token=' + encodeURIComponent(_tok)) : '');
       card.style.setProperty('--c', a.color);
       card.style.setProperty('--cdim', dim);
-      card.innerHTML = '<h3>' + a.name + ' // ' + a.slug.toUpperCase() + '</h3>'
+      card.innerHTML = '<h3>' + a.name + '</h3>'
         + '<div class="role">' + a.role + '</div>'
         + '<div class="desc">' + a.description + '</div>'
         + '<div class="launch">Launch dashboard</div>';
