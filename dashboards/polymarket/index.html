@@ -1154,16 +1154,16 @@
   .inputs-panel { display: flex; flex-direction: column; gap: 10px; }
   .inputs-panel h2 { margin-bottom: 2px; }
   .input-group { border: 1px solid rgba(255,255,255,0.06); border-left: 2px solid var(--accent-dim); background: rgba(255,255,255,0.015); border-radius: 2px; padding: 12px 14px; }
-  .input-group .ig-head { display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+  .input-group .ig-head { display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; }
   .input-group .ig-head .count { color: var(--text-dim); }
   .input-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .input-chip { cursor: pointer; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: var(--text); font-size: 10px; padding: 6px 10px; border-radius: 20px; transition: all .2s ease; font-family: inherit; }
+  .input-chip { cursor: pointer; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: var(--text); font-size: 12px; padding: 7px 12px; border-radius: 20px; transition: all .2s ease; font-family: inherit; }
   .input-chip:hover { border-color: var(--accent); background: rgba(0,229,255,0.08); color: var(--accent); transform: translateY(-1px); box-shadow: 0 0 10px var(--accent-dim); }
-  .input-list { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
+  .input-list { display: flex; flex-direction: column; gap: 4px; max-height: 220px; overflow-y: auto; }
   .input-list::-webkit-scrollbar { width: 3px; } .input-list::-webkit-scrollbar-thumb { background: var(--accent-dim); }
-  .input-row { cursor: pointer; padding: 8px 10px; border: 1px solid transparent; border-left: 2px solid rgba(0,229,255,0.2); background: rgba(255,255,255,0.01); font-size: 11px; line-height: 1.4; color: var(--text); transition: all .2s ease; border-radius: 2px; }
+  .input-row { cursor: pointer; padding: 9px 12px; border: 1px solid transparent; border-left: 2px solid rgba(0,229,255,0.2); background: rgba(255,255,255,0.01); font-size: 13px; line-height: 1.45; color: var(--text); transition: all .2s ease; border-radius: 2px; }
   .input-row:hover { background: rgba(0,229,255,0.06); border-left-color: var(--accent); border-color: var(--accent-dim); transform: translateX(2px); }
-  .input-row .meta-line { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--text-dim); margin-top: 3px; letter-spacing: 1px; text-transform: uppercase; }
+  .input-row .meta-line { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); margin-top: 3px; letter-spacing: 1px; text-transform: uppercase; }
   .cmd-left .agent-hero { padding: 16px 20px; }
   .cmd-left .ai-orb { width: 48px; height: 48px; }
   .cmd-left .agent-hero .nm { font-size: 15px; letter-spacing: 3px; }
@@ -1223,6 +1223,24 @@
   .portfolio-wrap { max-width: 1300px; margin: 0 auto; }
   .portfolio-wrap .mini-stats { grid-template-columns: repeat(4, 1fr); }
   .portfolio-wrap .mini-stats .kpi .val { font-size: 26px; }
+  /* Wallet centered CTA in portfolio */
+  .portfolio-wallet-cta {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 60px 40px; gap: 20px; text-align: center;
+  }
+  .portfolio-wallet-cta .big { font-family: 'Orbitron', sans-serif; font-size: 22px; letter-spacing: 4px; color: var(--accent); text-shadow: 0 0 20px var(--accent-dim); margin-bottom: 8px; }
+  .portfolio-wallet-cta p { font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text-dim); line-height: 1.6; max-width: 400px; }
+  .portfolio-wallet-cta .connect-btn {
+    margin-top: 12px; padding: 14px 36px; font-family: 'Orbitron', sans-serif; font-size: 12px;
+    letter-spacing: 3px; text-transform: uppercase; cursor: pointer; border-radius: 3px;
+    background: rgba(0,229,255,0.12); border: 1px solid var(--accent);
+    color: var(--accent); transition: all .2s ease;
+    box-shadow: 0 0 20px rgba(0,229,255,0.2), inset 0 0 20px rgba(0,229,255,0.05);
+  }
+  .portfolio-wallet-cta .connect-btn:hover {
+    background: rgba(0,229,255,0.22); box-shadow: 0 0 30px rgba(0,229,255,0.4), inset 0 0 30px rgba(0,229,255,0.1);
+    transform: translateY(-2px);
+  }
   /* ---- Positions — clean card grid ---- */
   .pos-clean {
     display: grid;
@@ -1255,7 +1273,7 @@
   .pos-card-v2 .top .title {
     font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text);
     line-height: 1.35; font-weight: 500;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-clamp: 2; overflow: hidden;
   }
   .pos-card-v2 .top .outcome {
     display: inline-block; margin-top: 6px; padding: 3px 10px;
@@ -1336,14 +1354,17 @@
   .embed-panel, .news-panel-side { display: flex; flex-direction: column; min-height: 560px; }
   .embed-host { flex: 1; min-height: 520px; max-height: 560px; border: 1px solid rgba(0,229,255,0.12); border-radius: 2px; overflow: hidden; background: #05070a; position: relative; display: flex; flex-direction: column; }
   .embed-host iframe { width: 100%; height: 100%; border: 0; display: block; flex: 1; }
-  .embed-tiles { display: flex; flex-direction: column; gap: 8px; padding: 8px; flex: 1; overflow-y: auto; }
+  .embed-tiles { display: flex; flex-direction: column; gap: 0; padding: 0; flex: 1; overflow-y: auto; }
   .embed-tiles::-webkit-scrollbar { width: 4px; } .embed-tiles::-webkit-scrollbar-thumb { background: var(--accent-dim); }
-  .embed-tile { display: flex; gap: 12px; padding: 10px; border: 1px solid rgba(255,255,255,0.06); border-radius: 2px; background: rgba(255,255,255,0.02); cursor: pointer; transition: all .25s ease; text-decoration: none; color: inherit; }
-  .embed-tile:hover { border-color: var(--accent-dim); background: rgba(0,229,255,0.05); transform: translateX(2px); }
-  .embed-tile img { width: 56px; height: 56px; border-radius: 2px; object-fit: cover; flex-shrink: 0; background: #111; }
-  .embed-tile .et-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-  .embed-tile .et-title { font-size: 12px; line-height: 1.35; color: var(--text); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .embed-tile .et-row { display: flex; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+  .embed-tile { display: flex; gap: 14px; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05); background: transparent; cursor: pointer; transition: all .2s ease; text-decoration: none; color: inherit; align-items: center; }
+  .embed-tile:hover { background: rgba(0,229,255,0.04); border-left: 2px solid var(--accent); padding-left: 14px; }
+  .embed-tile img { width: 52px; height: 52px; border-radius: 4px; object-fit: cover; flex-shrink: 0; background: #111; border: 1px solid rgba(255,255,255,0.1); }
+  .embed-tile .et-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  .embed-tile .et-title { font-family: 'Outfit', sans-serif; font-size: 13px; line-height: 1.4; color: var(--text); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; font-weight: 500; }
+  .embed-tile .et-row { display: flex; gap: 8px; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .embed-tile .et-yes { background: rgba(0,229,255,0.15); border: 1px solid rgba(0,229,255,0.4); color: #00e5ff; padding: 3px 10px; border-radius: 3px; font-weight: 600; font-size: 12px; }
+  .embed-tile .et-no { background: rgba(255,56,96,0.15); border: 1px solid rgba(255,56,96,0.4); color: #ff3860; padding: 3px 10px; border-radius: 3px; font-weight: 600; font-size: 12px; }
+  .embed-tile .et-vol { color: var(--text-dim); font-size: 10px; margin-left: auto; }
   .embed-tile .et-row .yes { color: var(--accent); } .embed-tile .et-row .no { color: var(--red); }
   .news-grid-side { max-height: 560px; overflow-y: auto; display: flex !important; flex-direction: column; gap: 14px; }
   .news-grid-side::-webkit-scrollbar { width: 4px; } .news-grid-side::-webkit-scrollbar-thumb { background: var(--accent-dim); }
@@ -1377,10 +1398,9 @@
   .news-grid::-webkit-scrollbar { width: 4px; } .news-grid::-webkit-scrollbar-thumb { background: var(--accent-dim); }
   
   .market-wall {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)) !important; 
-    gap: 14px; padding-right: 6px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important; 
+    gap: 14px;
   }
-  .market-wall::-webkit-scrollbar { width: 4px; } .market-wall::-webkit-scrollbar-thumb { background: var(--accent-dim); }
   .news-card {
     border: 1px solid var(--panel-border); background: rgba(6,10,18,0.65);
     border-radius: 3px; overflow: hidden; text-decoration: none; color: inherit;
@@ -1400,7 +1420,7 @@
   .news-card .body { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
   .news-card .title {
     font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; color: var(--text);
-    line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   }
   .news-card .meta {
     display: flex; justify-content: space-between; align-items: center; margin-top: auto;
@@ -1430,8 +1450,9 @@
   .event-hero .ttl { font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); line-height: 1.35; font-weight: 500; }
   .event-hero .row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; font-family: 'JetBrains Mono', monospace; font-size: 9px; }
   .event-hero .vol { color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; }
-  .event-hero .yesno { display: flex; gap: 5px; }
-  .event-hero .yesno span { padding: 3px 8px; border: 1px solid; border-radius: 2px; font-size: 9px; }
+  .event-hero .yesno { display: flex; gap: 6px; }
+  .event-hero .yes-tag { padding: 4px 12px; border: 1px solid rgba(0,229,255,0.5); border-radius: 3px; font-size: 11px; background: rgba(0,229,255,0.15); color: #00e5ff; font-weight: 700; }
+  .event-hero .no-tag  { padding: 4px 12px; border: 1px solid rgba(255,56,96,0.5); border-radius: 3px; font-size: 11px; background: rgba(255,56,96,0.15); color: #ff3860; font-weight: 700; }
 
   /* ---- MARKET WALL TILES WITH IMAGES ---- */
   .mw-tile .tile-img {
@@ -1672,7 +1693,11 @@
         <span class="br1"></span><span class="br2"></span>
         <h2>OPEN POSITIONS <span class="meta" id="posMeta">0 active</span></h2>
         <div id="positionsGrid" class="pos-clean">
-          <div class="empty"><div class="big">NO WALLET</div>Configure wallet to sync positions.<br><br><button class="tc-btn primary" style="font-size:11px;" onclick="document.getElementById('tradeBtn').click()">CONNECT TO POLYMARKET</button></div>
+          <div class="portfolio-wallet-cta">
+            <div class="big">NO WALLET CONNECTED</div>
+            <p>Connect your Polymarket account to sync your positions, P&L, and trade history in real time.</p>
+            <button class="connect-btn" onclick="document.getElementById('tradeBtn').click()">⚡ CONNECT TO POLYMARKET</button>
+          </div>
         </div>
       </div>
 
@@ -1757,8 +1782,8 @@
       <div class="trend-assets" id="trendAssets">
         <div class="empty" style="grid-column:1/-1;">Fetching trending assets…</div>
       </div>
-      <div class="tv-sym-bar">
-        <input type="text" id="tvSymInput" placeholder="Enter any TradingView symbol (e.g. NASDAQ:TSLA, CRYPTO:DOGEUSD)" />
+      <div class="tv-sym-bar" style="margin-bottom:10px;">
+        <input type="text" id="tvSymInput" placeholder="Symbol — e.g. NASDAQ:TSLA · CRYPTO:BTCUSD · FOREX:EURUSD" />
         <button id="tvSymGo">LOAD</button>
       </div>
       <div id="tvHost" class="tv-host"></div>
@@ -3038,8 +3063,8 @@
     const meta = $('trendAssetsMeta');
     // Static macro bedrock (always shown)
     const macros = [
-      { sym: 'TVC:SPX', name: 'S&P 500' },
-      { sym: 'TVC:GOLD', name: 'Gold' }
+      { sym: 'FOREXCOM:SPXUSD', name: 'S&P 500', short: 'SPX' },
+      { sym: 'OANDA:XAUUSD', name: 'Gold', short: 'GOLD' }
     ];
     let cryptos = [];
     try {
@@ -3748,11 +3773,12 @@
     const filtered = browserMarkets.filter(m => {
       if (browserCat !== 'all') {
         const tags = marketTags(m);
+        const q_combined = (m.question || '').toLowerCase() + ' ' + (m.description || '').toLowerCase() + ' ' + tags.join(' ').toLowerCase();
         const matchCat =
-          (browserCat === 'politics' && tags.some(t => /politic|election|trump|congress|senate/.test(t))) ||
-          (browserCat === 'crypto' && tags.some(t => /crypto|bitcoin|btc|eth|ethereum/.test(t))) ||
-          (browserCat === 'sports' && tags.some(t => /sport|nba|nfl|mlb|soccer|football|tennis/.test(t))) ||
-          (browserCat === 'culture' && tags.some(t => /culture|music|film|celeb|pop/.test(t)));
+          (browserCat === 'politics' && /politic|election|trump|biden|congress|senate|president|democrat|republican/.test(q_combined)) ||
+          (browserCat === 'crypto' && /crypto|bitcoin|btc|eth|ethereum|solana|sol\b|doge|nft|web3|blockchain/.test(q_combined)) ||
+          (browserCat === 'sports' && /sport|nba|nfl|mlb|soccer|football|tennis|golf|nhl|boxing|mma/.test(q_combined)) ||
+          (browserCat === 'culture' && /culture|music|film|oscar|grammy|celeb|pop|movie|celebrity|award/.test(q_combined));
         if (!matchCat) return false;
       }
       if (q && !(m.question||'').toLowerCase().includes(q)) return false;
@@ -3961,7 +3987,7 @@
       return _origRenderPositions.apply(this, arguments);
     }
     const meta = $('posMeta'); if (meta) meta.textContent = positions.length + ' active';
-    if (!positions.length) { box.innerHTML = '<div class="empty"><div class="big">NO WALLET</div>Configure wallet to sync positions.<br><br><button class="tc-btn primary" style="font-size:11px;" onclick="document.getElementById(\'tradeBtn\').click()">CONNECT TO POLYMARKET</button></div>'; return; }
+    if (!positions.length) { box.innerHTML = '<div class="portfolio-wallet-cta"><div class="big">NO WALLET CONNECTED</div><p>Connect your Polymarket account to sync your positions, P&amp;L, and trade history in real time.</p><button class="connect-btn" onclick="document.getElementById(\'tradeBtn\').click()">⚡ CONNECT TO POLYMARKET</button></div>'; return; }
     const sorted = positions.slice().sort((a,b)=>(b.currentValue||0)-(a.currentValue||0));
     box.innerHTML = sorted.map(p => {
       const pnl = p.cashPnl || 0;
@@ -4036,11 +4062,12 @@
             const img = e.image || e.icon || (m0.image || m0.icon) || '';
             const slug = e.slug || m0.slug || '';
             const href = slug ? ('https://polymarket.com/event/' + slug) : 'https://polymarket.com';
+            const endDate = m0.endDate ? new Date(m0.endDate).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '';
             return '<a class="embed-tile" href="' + href + '" target="_blank" rel="noopener">'
-              + (img ? '<img src="' + img + '" alt="" onerror="this.style.display=\'none\'"/>' : '<div style="width:56px;height:56px;background:#111;border-radius:2px;"></div>')
+              + (img ? '<img src="' + img + '" alt="" onerror="this.style.display=\'none\'"/>' : '<div style="width:52px;height:52px;background:#111;border-radius:4px;border:1px solid rgba(255,255,255,0.1);"></div>')
               + '<div class="et-body">'
               +   '<div class="et-title">' + escapeHtml(e.title || '') + '</div>'
-              +   '<div class="et-row"><span class="yes">Y ' + yes + '</span><span class="no">N ' + no + '</span><span>' + vol + '</span></div>'
+              +   '<div class="et-row"><span class="et-yes">YES ' + yes + '</span><span class="et-no">NO ' + no + '</span>' + (vol ? '<span class="et-vol">' + vol + '</span>' : '') + (endDate ? '<span class="et-vol">ends ' + endDate + '</span>' : '') + '</div>'
               + '</div></a>';
           }).join('');
           eHost.className = 'embed-host';
