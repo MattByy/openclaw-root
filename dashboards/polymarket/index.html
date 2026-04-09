@@ -1140,7 +1140,10 @@
     }
     setChatConn('off', 'CONNECTING');
     try {
-      gw = new WebSocket('ws://' + location.hostname + ':18789/');
+      // Gateway lives on the BASE subdomain (not -dash). Use wss:// on https.
+      var gwHost = location.hostname.replace(/-dash\.oc\./, '.oc.');
+      var gwProto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+      gw = new WebSocket(gwProto + gwHost + '/');
     } catch (e) {
       setChatConn('off', 'FAILED');
       scheduleReconnect();

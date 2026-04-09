@@ -20,13 +20,16 @@ const agents = $input.all().map(item => item.json);
 const rows = $('Get a row').all().map(item => item.json);
 
 const paired = agents.map((agent, i) => {
-    const shortId = (rows[i]?.id || '').substring(0, 4);
-    const baseSlug = agent.slug || 'agent-' + i;
-    return {
-        agent,
-        row: rows[i] || {},
-        instanceId: `${baseSlug}-${shortId}`
-    };
+    const shortId = (rows[i]?.id || '').substring(0, 4) || String(i);
+    const raw =
+        (agent.slug && String(agent.slug).trim()) ||
+        (rows[i]?.slug && String(rows[i].slug).trim()) ||
+        (agent.name && String(agent.name).trim()) ||
+        (rows[i]?.name && String(rows[i].name).trim()) ||
+        ('agent' + i);
+    const baseSlug = raw.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || ('agent' + i);
+    const instanceId = (baseSlug + '-' + shortId).replace(/^-+/, 'agent-');
+    return { agent, row: rows[i] || {}, instanceId };
 });
 
 // ==========================================
