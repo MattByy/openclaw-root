@@ -3,37 +3,42 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SCOUT // POLYMARKET</title>
+<title>POLYMARKET // HUD</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/globe.gl@2.45.3/dist/globe.gl.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" defer></script>
 <style>
   :root {
-    --accent: #00f5a0;
-    --accent-2: #00c4ff;
-    --accent-dim: rgba(0,245,160,0.35);
-    --accent-fade: rgba(0,245,160,0.08);
-    --bg0: #07080c;
-    --bg1: #0b0d12;
-    --bg2: #0f1016;
-    --panel: rgba(14,18,24,0.72);
-    --panel-solid: #0c0f14;
-    --panel-border: rgba(0,245,160,0.18);
-    --panel-border-strong: rgba(0,245,160,0.32);
-    --text: #d7e3e0;
-    --text-dim: #6b7a78;
-    --text-mute: #4a5856;
-    --red: #ff4d6d;
+    --accent: #00e5ff;
+    --accent-soft: #7df9ff;
+    --accent-2: #0088ff;
+    --accent-dim: rgba(0,229,255,0.35);
+    --accent-fade: rgba(0,229,255,0.08);
+    --accent-rgb: 0,229,255;
+    --bg0: #04060b;
+    --bg1: #07090f;
+    --bg2: #0a0d14;
+    --panel: rgba(8,12,20,0.62);
+    --panel-solid: #06090f;
+    --panel-border: rgba(0,229,255,0.18);
+    --panel-border-strong: rgba(0,229,255,0.38);
+    --text: #d8ecf2;
+    --text-dim: #6b8490;
+    --text-mute: #435560;
+    --red: #ff3860;
     --amber: #ffc048;
+    --gold: #f5d76e;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { background: var(--bg0); color: var(--text); font-family: 'Outfit', sans-serif; min-height: 100vh; overflow-x: hidden; }
   body::before {
     content:''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
     background:
-      radial-gradient(circle at 12% 8%, rgba(0,245,160,0.10), transparent 45%),
+      radial-gradient(circle at 12% 8%, rgba(0,229,255,0.10), transparent 45%),
       radial-gradient(circle at 88% 92%, rgba(0,196,255,0.06), transparent 55%),
-      radial-gradient(circle at 60% 40%, rgba(0,245,160,0.04), transparent 60%);
+      radial-gradient(circle at 60% 40%, rgba(0,229,255,0.04), transparent 60%);
   }
   body::after {
     content:''; position: fixed; inset: 0; pointer-events: none; z-index: 1;
@@ -50,7 +55,7 @@
     border-radius: 4px;
     padding: 16px 20px 18px;
     position: relative;
-    box-shadow: inset 0 0 26px rgba(0,245,160,0.025), 0 0 24px rgba(0,0,0,0.4);
+    box-shadow: inset 0 0 26px rgba(0,229,255,0.025), 0 0 24px rgba(0,0,0,0.4);
   }
   .panel::before, .panel::after,
   .panel > .br1, .panel > .br2 {
@@ -75,7 +80,7 @@
     display: grid; grid-template-columns: auto 1fr auto auto auto auto; gap: 20px; align-items: center;
     border: 1px solid var(--panel-border); background: var(--panel);
     backdrop-filter: blur(16px); padding: 14px 24px; border-radius: 4px; position: relative;
-    box-shadow: inset 0 0 30px rgba(0,245,160,0.03), 0 0 40px rgba(0,245,160,0.05);
+    box-shadow: inset 0 0 30px rgba(0,229,255,0.03), 0 0 40px rgba(0,229,255,0.05);
   }
   header.topbar::before, header.topbar::after { content: ''; position: absolute; width: 14px; height: 14px; border: 1px solid var(--accent); }
   header.topbar::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
@@ -91,11 +96,11 @@
   .logo {
     width: 42px; height: 42px; border: 1px solid var(--accent); border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 22px var(--accent-dim), inset 0 0 14px rgba(0,245,160,0.18);
+    box-shadow: 0 0 22px var(--accent-dim), inset 0 0 14px rgba(0,229,255,0.18);
     position: relative;
   }
   .logo::before { content:''; width: 11px; height: 11px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: pulse 2.2s infinite ease-in-out; }
-  .logo::after { content:''; position: absolute; inset: -5px; border-radius: 50%; border: 1px dashed rgba(0,245,160,0.25); animation: spin 18s linear infinite; }
+  .logo::after { content:''; position: absolute; inset: -5px; border-radius: 50%; border: 1px dashed rgba(0,229,255,0.25); animation: spin 18s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1);} 50% { opacity: .45; transform: scale(.82);} }
   .title-block h1 { font-size: 18px; font-weight: 600; letter-spacing: 3.5px; color: var(--accent); text-shadow: 0 0 20px var(--accent-dim); }
@@ -138,7 +143,7 @@
   .kpi .val.neg { color: var(--red); text-shadow: 0 0 16px rgba(255,77,109,0.35); }
   .kpi .sub { font-family:'JetBrains Mono',monospace; font-size: 9px; color: var(--text-dim); margin-top: 4px; letter-spacing: 1px; }
   .kpi.flash { animation: kpiFlash .6s ease; }
-  @keyframes kpiFlash { 0% { background: rgba(0,245,160,0.18); } 100% { background: var(--panel); } }
+  @keyframes kpiFlash { 0% { background: rgba(0,229,255,0.18); } 100% { background: var(--panel); } }
 
   /* ============ MAIN GRID ============ */
   .main { display: grid; grid-template-columns: 1fr 360px; gap: 16px; margin-top: 16px; }
@@ -161,7 +166,7 @@
     flex: 0 0 260px; border: 1px solid var(--panel-border); background: rgba(12,15,20,0.6);
     border-radius: 3px; padding: 12px; cursor: pointer; transition: all .2s ease; position: relative;
   }
-  .trend-card:hover { transform: translateY(-2px); border-color: var(--accent-dim); box-shadow: 0 6px 20px rgba(0,245,160,0.12); }
+  .trend-card:hover { transform: translateY(-2px); border-color: var(--accent-dim); box-shadow: 0 6px 20px rgba(0,229,255,0.12); }
   .trend-card .row1 { display: flex; gap: 10px; align-items: flex-start; }
   .trend-card img { width: 36px; height: 36px; border-radius: 3px; border: 1px solid var(--panel-border); object-fit: cover; flex-shrink: 0; background: var(--bg1); }
   .trend-card .ttl { font-size: 11px; color: var(--text); line-height: 1.35; max-height: 44px; overflow: hidden; }
@@ -185,8 +190,8 @@
   .chip:hover { color: var(--accent); }
   #browserList { display: grid; grid-template-columns: 1fr; gap: 6px; max-height: 360px; overflow-y: auto; padding-right: 4px; }
   #browserList::-webkit-scrollbar { width: 4px; } #browserList::-webkit-scrollbar-thumb { background: var(--accent-dim); }
-  .browser-row { display: grid; grid-template-columns: 32px 1fr auto auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid rgba(0,245,160,0.08); border-radius: 3px; cursor: pointer; background: rgba(12,15,20,0.4); transition: all .15s ease; }
-  .browser-row:hover { border-color: var(--accent-dim); background: rgba(0,245,160,0.04); }
+  .browser-row { display: grid; grid-template-columns: 32px 1fr auto auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid rgba(0,229,255,0.08); border-radius: 3px; cursor: pointer; background: rgba(12,15,20,0.4); transition: all .15s ease; }
+  .browser-row:hover { border-color: var(--accent-dim); background: rgba(0,229,255,0.04); }
   .browser-row img { width: 32px; height: 32px; border-radius: 3px; object-fit: cover; border: 1px solid var(--panel-border); background: var(--bg1); }
   .browser-row .q { font-size: 12px; color: var(--text); line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .browser-row .vol24 { font-family:'JetBrains Mono',monospace; font-size: 10px; color: var(--text-dim); }
@@ -203,14 +208,14 @@
   .pos-card .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; font-family:'JetBrains Mono',monospace; font-size: 10px; }
   .pos-card .lbl { color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-size: 8px; }
   .pos-card .v { color: var(--text); }
-  .pos-card .pnl-line { display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,245,160,0.08); font-family:'JetBrains Mono',monospace; font-size: 11px; }
+  .pos-card .pnl-line { display: flex; justify-content: space-between; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,229,255,0.08); font-family:'JetBrains Mono',monospace; font-size: 11px; }
   .pos-card .pnl-line .pos { color: var(--accent); }
   .pos-card .pnl-line .neg { color: var(--red); }
 
   /* ============ TRADES TABLE ============ */
   table.trades { width: 100%; border-collapse: collapse; font-family:'JetBrains Mono',monospace; font-size: 10px; }
   table.trades thead th { text-align: left; padding: 6px 8px; color: var(--text-dim); font-weight: 500; letter-spacing: 1.2px; text-transform: uppercase; font-size: 8px; border-bottom: 1px solid var(--panel-border); }
-  table.trades tbody td { padding: 8px; border-bottom: 1px solid rgba(0,245,160,0.05); }
+  table.trades tbody td { padding: 8px; border-bottom: 1px solid rgba(0,229,255,0.05); }
   table.trades tbody tr:hover { background: var(--accent-fade); }
   .tag { display:inline-block; padding: 1px 6px; font-size: 8px; letter-spacing: 1px; border: 1px solid; border-radius: 2px; }
   .tag.buy { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-fade); }
@@ -220,7 +225,7 @@
   .tag.open { color: var(--amber); border-color: rgba(255,192,72,.3); background: rgba(255,192,72,.08); }
 
   /* ============ AGENT STATUS PANEL ============ */
-  .agent-status .row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed rgba(0,245,160,0.1); font-family:'JetBrains Mono',monospace; font-size: 10px; }
+  .agent-status .row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px dashed rgba(0,229,255,0.1); font-family:'JetBrains Mono',monospace; font-size: 10px; }
   .agent-status .row:last-child { border-bottom: none; }
   .agent-status .row .k { color: var(--text-dim); letter-spacing: 1.2px; text-transform: uppercase; font-size: 8px; }
   .agent-status .row .v { color: var(--text); text-align: right; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -243,8 +248,8 @@
   .bubble { max-width: 88%; padding: 8px 12px; border-radius: 10px; font-size: 11px; line-height: 1.45; position: relative; word-wrap: break-word; animation: bubbleIn .25s ease; }
   @keyframes bubbleIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
   .bubble.agent {
-    align-self: flex-start; background: rgba(0,245,160,0.06); color: var(--text);
-    border: 1px solid rgba(0,245,160,0.15); border-left: 2px solid var(--accent);
+    align-self: flex-start; background: rgba(0,229,255,0.06); color: var(--text);
+    border: 1px solid rgba(0,229,255,0.15); border-left: 2px solid var(--accent);
     border-bottom-left-radius: 3px;
   }
   .bubble.user {
@@ -273,7 +278,7 @@
     padding: 0 16px; font-family:'JetBrains Mono',monospace; font-size: 10px; letter-spacing: 1.4px;
     text-transform: uppercase; cursor: pointer; border-radius: 2px;
   }
-  .chat-input-row button:hover { background: rgba(0,245,160,0.15); box-shadow: 0 0 12px var(--accent-dim); }
+  .chat-input-row button:hover { background: rgba(0,229,255,0.15); box-shadow: 0 0 12px var(--accent-dim); }
   .chat-input-row button:disabled { opacity: .3; cursor: not-allowed; }
   .slash-hint { font-family:'JetBrains Mono',monospace; font-size: 8px; color: var(--text-mute); margin-top: 5px; letter-spacing: 1px; }
 
@@ -284,7 +289,7 @@
     position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 100vw;
     background: var(--panel-solid); border-left: 1px solid var(--accent-dim); z-index: 51;
     transform: translateX(100%); transition: transform .3s ease; overflow-y: auto;
-    box-shadow: -12px 0 40px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,245,160,0.04);
+    box-shadow: -12px 0 40px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,229,255,0.04);
   }
   .drawer.open { transform: translateX(0); }
   .drawer .head { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--panel-border); }
@@ -306,7 +311,7 @@
     padding: 12px; font-family:'JetBrains Mono',monospace; font-size: 11px; letter-spacing: 1.5px;
     text-transform: uppercase; cursor: pointer; border-radius: 2px;
   }
-  .drawer .ask-btn:hover { background: rgba(0,245,160,0.15); box-shadow: 0 0 16px var(--accent-dim); }
+  .drawer .ask-btn:hover { background: rgba(0,229,255,0.15); box-shadow: 0 0 16px var(--accent-dim); }
 
   /* ============ ONBOARDING MODAL ============ */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(6px); z-index: 100; display: none; align-items: center; justify-content: center; }
@@ -314,7 +319,7 @@
   .modal {
     width: 440px; max-width: 92vw; background: var(--panel-solid); border: 1px solid var(--accent-dim);
     border-radius: 4px; padding: 28px; position: relative;
-    box-shadow: 0 0 60px rgba(0,245,160,0.18), inset 0 0 40px rgba(0,245,160,0.04);
+    box-shadow: 0 0 60px rgba(0,229,255,0.18), inset 0 0 40px rgba(0,229,255,0.04);
   }
   .modal::before, .modal::after { content:''; position: absolute; width: 16px; height: 16px; border: 1px solid var(--accent); }
   .modal::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
@@ -337,24 +342,275 @@
     text-transform: uppercase; cursor: pointer; border-radius: 2px;
   }
   .modal .btns .primary { background: var(--accent-fade); border: 1px solid var(--accent-dim); color: var(--accent); }
-  .modal .btns .primary:hover { background: rgba(0,245,160,0.15); box-shadow: 0 0 14px var(--accent-dim); }
+  .modal .btns .primary:hover { background: rgba(0,229,255,0.15); box-shadow: 0 0 14px var(--accent-dim); }
   .modal .btns .ghost { background: transparent; border: 1px solid var(--panel-border); color: var(--text-dim); }
   .modal .btns .ghost:hover { color: var(--text); }
 
   /* ============ EMPTY / SKELETON ============ */
   .empty { text-align: center; padding: 36px 18px; color: var(--text-dim); font-family:'JetBrains Mono',monospace; font-size: 10px; letter-spacing: 1.4px; }
   .empty .big { font-size: 12px; color: var(--accent); margin-bottom: 8px; letter-spacing: 2px; }
-  .skel { background: linear-gradient(90deg, rgba(0,245,160,0.04), rgba(0,245,160,0.12), rgba(0,245,160,0.04)); background-size: 200% 100%; animation: shim 1.4s infinite; border-radius: 3px; }
+  .skel { background: linear-gradient(90deg, rgba(0,229,255,0.04), rgba(0,229,255,0.12), rgba(0,229,255,0.04)); background-size: 200% 100%; animation: shim 1.4s infinite; border-radius: 3px; }
   @keyframes shim { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
+  @media (max-width: 1400px) {
+    .hud-main { grid-template-columns: 260px 1fr 340px; }
+  }
   @media (max-width: 1200px) {
-    .main { grid-template-columns: 1fr; }
+    .hud-main { grid-template-columns: 1fr; }
     .kpis { grid-template-columns: repeat(3, 1fr); }
+    .globe-stage { height: 520px; }
   }
   @media (max-width: 720px) {
     .kpis { grid-template-columns: 1fr 1fr; }
     header.topbar { grid-template-columns: 1fr; gap: 10px; }
   }
+
+  /* ============================================================ */
+  /* ============   JARVIS HUD REWRITE — v2   ================== */
+  /* ============================================================ */
+
+  body { font-family: 'Outfit', sans-serif; background: #000; }
+  body::before {
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(0,229,255,0.10), transparent 55%),
+      radial-gradient(ellipse at 80% 100%, rgba(0,136,255,0.07), transparent 60%),
+      radial-gradient(circle at 50% 50%, rgba(0,229,255,0.03), transparent 70%),
+      #04060b;
+  }
+  /* CRT scanlines — heavier than before */
+  body::after {
+    background:
+      repeating-linear-gradient(0deg, rgba(0,229,255,0.025) 0, rgba(0,229,255,0.025) 1px, transparent 1px, transparent 3px),
+      repeating-linear-gradient(90deg, rgba(0,229,255,0.012) 0, rgba(0,229,255,0.012) 1px, transparent 1px, transparent 4px);
+    mix-blend-mode: screen;
+    animation: crtFlicker 6s infinite;
+  }
+  @keyframes crtFlicker {
+    0%, 96%, 100% { opacity: 1; }
+    97% { opacity: 0.7; }
+    98% { opacity: 1; }
+    98.5% { opacity: 0.85; }
+  }
+  /* Vignette */
+  .vignette {
+    position: fixed; inset: 0; pointer-events: none; z-index: 2;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+  }
+  /* SVG noise */
+  .noise {
+    position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0.06;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .wrap { max-width: none; padding: 14px 18px 18px; }
+
+  /* Topbar tweaks */
+  header.topbar {
+    grid-template-columns: auto 1fr auto auto auto auto auto;
+    background: linear-gradient(180deg, rgba(0,229,255,0.05), rgba(8,12,20,0.7));
+  }
+  .title-block h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 20px; font-weight: 700; letter-spacing: 6px;
+    background: linear-gradient(180deg, #fff 0%, var(--accent) 60%, var(--accent-2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    filter: drop-shadow(0 0 16px var(--accent-dim));
+  }
+  .title-block .sub { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 3px; }
+
+  .logo { border-width: 1.5px; box-shadow: 0 0 28px var(--accent-dim), inset 0 0 18px rgba(0,229,255,0.22); }
+  .logo::before { animation: pulse 1.8s infinite ease-in-out; }
+
+  .hud-tools { display: flex; gap: 8px; align-items: center; }
+  .hud-btn {
+    width: 34px; height: 34px; border: 1px solid var(--panel-border); background: var(--accent-fade);
+    color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 14px; cursor: pointer;
+    border-radius: 2px; display: flex; align-items: center; justify-content: center;
+    transition: all .2s ease;
+  }
+  .hud-btn:hover { background: rgba(0,229,255,0.14); box-shadow: 0 0 14px var(--accent-dim); }
+  .hud-btn.off { color: var(--text-mute); border-color: rgba(107,132,144,.25); background: transparent; }
+
+  /* ============ MAIN 3-COLUMN GRID (REWRITE) ============ */
+  .hud-main {
+    display: grid;
+    grid-template-columns: 300px 1fr 360px;
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .rail { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+  /* KPIs in left rail (vertical) */
+  .kpi-stack { display: flex; flex-direction: column; gap: 10px; }
+  .kpi-stack .kpi { padding: 12px 14px; }
+  .kpi-stack .kpi .val { font-size: 20px; }
+
+  /* ============ GLOBE STAGE ============ */
+  .globe-stage {
+    position: relative;
+    height: 640px;
+    border: 1px solid var(--panel-border);
+    background:
+      radial-gradient(ellipse at center, rgba(0,229,255,0.08) 0%, rgba(0,0,0,0) 60%),
+      radial-gradient(ellipse at center, rgba(0,0,0,0.3), rgba(4,6,11,0.95));
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: inset 0 0 80px rgba(0,229,255,0.08), 0 0 50px rgba(0,0,0,0.6);
+  }
+  .globe-stage::before, .globe-stage::after {
+    content:''; position: absolute; width: 18px; height: 18px; border: 1.5px solid var(--accent); z-index: 5;
+  }
+  .globe-stage::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .globe-stage::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+  .globe-stage .br3, .globe-stage .br4 {
+    content:''; position: absolute; width: 18px; height: 18px; border: 1.5px solid var(--accent); z-index: 5;
+  }
+  .globe-stage .br3 { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+  .globe-stage .br4 { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+
+  #globeContainer { position: absolute; inset: 0; }
+  #globeContainer canvas { display: block; }
+
+  /* Concentric rotating rings SVG overlay */
+  .hud-rings {
+    position: absolute; inset: 0; pointer-events: none; display: flex; align-items: center; justify-content: center;
+  }
+  .hud-rings svg { width: 100%; height: 100%; max-width: 720px; max-height: 720px; }
+  .hud-rings .ring-g-1 { animation: ringSpin 40s linear infinite; transform-origin: 50% 50%; }
+  .hud-rings .ring-g-2 { animation: ringSpin 60s linear infinite reverse; transform-origin: 50% 50%; }
+  .hud-rings .ring-g-3 { animation: ringSpin 90s linear infinite; transform-origin: 50% 50%; }
+  @keyframes ringSpin { to { transform: rotate(360deg); } }
+
+  /* Corner readouts over globe */
+  .globe-readout {
+    position: absolute; font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 2px;
+    color: var(--accent); text-transform: uppercase; text-shadow: 0 0 8px var(--accent-dim);
+    z-index: 4;
+  }
+  .globe-readout.tl { top: 14px; left: 18px; }
+  .globe-readout.tr { top: 14px; right: 18px; text-align: right; }
+  .globe-readout.bl { bottom: 14px; left: 18px; }
+  .globe-readout.br { bottom: 14px; right: 18px; text-align: right; }
+  .globe-readout .big { font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 3px; color: #fff; text-shadow: 0 0 14px var(--accent); display: block; margin-top: 2px; }
+  .globe-readout .dim { color: var(--text-dim); }
+
+  .globe-title {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+    font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 6px;
+    color: var(--accent); text-shadow: 0 0 14px var(--accent-dim); z-index: 4;
+  }
+  .globe-title::before, .globe-title::after { content: '◀'; margin: 0 10px; color: var(--accent-dim); }
+  .globe-title::after { content: '▶'; }
+
+  /* Globe HTML pin */
+  .globe-pin {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent), 0 0 24px var(--accent);
+    cursor: pointer; transform: translate(-50%,-50%); position: relative;
+  }
+  .globe-pin::before {
+    content:''; position: absolute; inset: -6px; border: 1px solid var(--accent-dim); border-radius: 50%;
+    animation: pinPulse 2s infinite;
+  }
+  .globe-pin.loss { background: var(--red); box-shadow: 0 0 12px var(--red), 0 0 24px var(--red); }
+  .globe-pin.loss::before { border-color: rgba(255,56,96,0.4); }
+  @keyframes pinPulse {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2.4); opacity: 0; }
+  }
+  .globe-pin-label {
+    position: absolute; left: 12px; top: -4px; white-space: nowrap; font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; letter-spacing: 1px; color: var(--accent); text-shadow: 0 0 6px var(--accent-dim);
+    background: rgba(4,6,11,0.8); padding: 2px 6px; border: 1px solid var(--panel-border); border-radius: 2px;
+    pointer-events: none;
+  }
+
+  /* ============ RADAR PANEL ============ */
+  .radar-panel { position: relative; }
+  .radar-wrap { position: relative; width: 100%; aspect-ratio: 1/1; }
+  #radarCanvas { width: 100%; height: 100%; display: block; }
+  .radar-overlay {
+    position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(circle at center, transparent 55%, rgba(4,6,11,0.5) 100%);
+  }
+  .radar-meta { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 1.2px; margin-top: 8px; text-transform: uppercase; }
+  .radar-meta .v { color: var(--accent); }
+
+  /* ============ FEED (live trade/market pings) ============ */
+  .feed { display: flex; flex-direction: column; gap: 6px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
+  .feed::-webkit-scrollbar { width: 3px; } .feed::-webkit-scrollbar-thumb { background: var(--accent-dim); }
+  .feed-item {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text);
+    padding: 6px 10px; border-left: 2px solid var(--accent-dim); background: rgba(0,229,255,0.04);
+    border-radius: 0 2px 2px 0;
+    animation: feedIn .35s ease;
+  }
+  .feed-item .t { color: var(--text-dim); font-size: 8px; letter-spacing: 1px; margin-right: 8px; }
+  .feed-item.win { border-left-color: var(--accent); }
+  .feed-item.loss { border-left-color: var(--red); background: rgba(255,56,96,0.04); }
+  @keyframes feedIn { from { opacity: 0; transform: translateX(-6px); } to { opacity: 1; transform: none; } }
+
+  /* ============ SECONDARY (below-fold) ============ */
+  .hud-below { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+  @media (max-width: 1200px) { .hud-below { grid-template-columns: 1fr; } }
+
+  /* Typewriter effect on first boot for chat */
+  .boot-line {
+    overflow: hidden; white-space: nowrap; animation: typing 1.4s steps(40, end);
+  }
+  @keyframes typing { from { width: 0; } to { width: 100%; } }
+
+  /* Panel h2 in Orbitron */
+  .panel h2 { font-family: 'Share Tech Mono', monospace; font-size: 11px; letter-spacing: 3px; }
+  .panel h2::before { box-shadow: 0 0 14px var(--accent); }
+
+  /* Boot overlay (shown until globe is ready) */
+  .boot-overlay {
+    position: fixed; inset: 0; z-index: 200; background: #04060b;
+    display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px;
+    font-family: 'Share Tech Mono', monospace; color: var(--accent);
+    transition: opacity .6s ease, visibility .6s ease;
+  }
+  .boot-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .boot-overlay .boot-logo {
+    width: 120px; height: 120px; border: 1px solid var(--accent); border-radius: 50%; position: relative;
+    box-shadow: 0 0 40px var(--accent-dim), inset 0 0 30px var(--accent-dim);
+  }
+  .boot-overlay .boot-logo::before, .boot-overlay .boot-logo::after {
+    content:''; position: absolute; inset: -12px; border: 1px dashed rgba(0,229,255,0.3); border-radius: 50%;
+  }
+  .boot-overlay .boot-logo::before { animation: spin 6s linear infinite; }
+  .boot-overlay .boot-logo::after { inset: -24px; border-style: dotted; animation: spin 12s linear infinite reverse; }
+  .boot-overlay .boot-text { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; text-align: center; }
+  .boot-overlay .boot-text .blink { animation: blink 1s infinite; }
+  .boot-overlay .boot-bar { width: 260px; height: 2px; background: rgba(0,229,255,0.15); overflow: hidden; }
+  .boot-overlay .boot-bar i { display: block; width: 40%; height: 100%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: bootBar 1.6s ease-in-out infinite; }
+  @keyframes bootBar { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
+
+  /* Alert flash overlay (agent can trigger later) */
+  .alert-flash {
+    position: fixed; inset: 0; pointer-events: none; z-index: 60;
+    background: radial-gradient(ellipse at center, transparent 60%, var(--accent-dim) 100%);
+    opacity: 0; transition: opacity .3s ease;
+  }
+  .alert-flash.on { opacity: 1; }
+
+  /* Horizontal tickertape */
+  .tickertape {
+    height: 28px; overflow: hidden; border: 1px solid var(--panel-border);
+    background: rgba(4,6,11,0.7); border-radius: 2px; position: relative;
+    display: flex; align-items: center;
+  }
+  .tickertape .track {
+    display: flex; gap: 40px; white-space: nowrap;
+    animation: ticker 90s linear infinite;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1px; color: var(--text-dim);
+  }
+  .tickertape .track span { color: var(--text-dim); }
+  .tickertape .track b { color: var(--accent); font-weight: 500; margin-right: 6px; }
+  .tickertape .track .neg { color: var(--red); }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 </style>
 </head>
 <body>
@@ -392,6 +648,20 @@
   <div class="body" id="drawerBody"></div>
 </aside>
 
+<div class="vignette"></div>
+<div class="noise"></div>
+<div class="alert-flash" id="alertFlash"></div>
+
+<!-- ============ BOOT OVERLAY ============ -->
+<div class="boot-overlay" id="bootOverlay">
+  <div class="boot-logo"></div>
+  <div class="boot-text">
+    <div>POLYMARKET // HUD</div>
+    <div class="dim" style="font-size:9px; letter-spacing:2px; margin-top:8px; color:var(--text-dim);">INITIALIZING COMMAND DECK<span class="blink">_</span></div>
+  </div>
+  <div class="boot-bar"><i></i></div>
+</div>
+
 <div class="wrap">
 
   <!-- ============ TOPBAR ============ -->
@@ -400,8 +670,8 @@
     <div class="brand">
       <div class="logo"></div>
       <div class="title-block">
-        <h1>SCOUT // POLYMARKET</h1>
-        <div class="sub">CLAWMODE AGENT // PREDICTION MARKETS</div>
+        <h1>POLYMARKET</h1>
+        <div class="sub">COMMAND DECK // PREDICTION MARKETS</div>
       </div>
     </div>
 
@@ -434,24 +704,90 @@
       <div class="lbl">Sync</div>
       <div class="val" id="hSync">--:--:--</div>
     </div>
+
+    <div class="hud-tools">
+      <button class="hud-btn off" id="audioToggle" title="Toggle audio">♪</button>
+    </div>
   </header>
 
-  <!-- ============ KPIs ============ -->
-  <div class="kpis">
-    <div class="kpi" id="kpiValue"><span class="br1"></span><div class="lbl">Portfolio Value</div><div class="val" id="kValue">$—</div><div class="sub">USDC on Polygon</div></div>
-    <div class="kpi" id="kpiToday"><div class="lbl">Today P&L</div><div class="val" id="kToday">$—</div><div class="sub" id="kTodayPct">—</div></div>
-    <div class="kpi" id="kpiAll"><div class="lbl">All-time P&L</div><div class="val" id="kAll">$—</div><div class="sub">Realized + unreal.</div></div>
-    <div class="kpi" id="kpiWin"><div class="lbl">Win Rate</div><div class="val" id="kWin">—</div><div class="sub" id="kWinSub">0W / 0L</div></div>
-    <div class="kpi" id="kpiTr"><div class="lbl">Trades Today</div><div class="val" id="kTr">—</div><div class="sub">Executed</div></div>
-    <div class="kpi" id="kpiSt"><div class="lbl">Straddle Cost</div><div class="val" id="kSt">—</div><div class="sub" id="kStSub">No market wired</div></div>
-  </div>
+  <!-- ============ MAIN 3-COLUMN ============ -->
+  <div class="hud-main">
 
-  <!-- ============ MAIN ============ -->
-  <div class="main">
-    <div class="col-left">
+    <!-- LEFT RAIL — KPIs + RADAR -->
+    <div class="rail">
+
+      <div class="kpi-stack">
+        <div class="kpi" id="kpiValue"><span class="br1"></span><div class="lbl">Portfolio Value</div><div class="val" id="kValue">$—</div><div class="sub">USDC on Polygon</div></div>
+        <div class="kpi" id="kpiToday"><div class="lbl">Today P&amp;L</div><div class="val" id="kToday">$—</div><div class="sub" id="kTodayPct">—</div></div>
+        <div class="kpi" id="kpiAll"><div class="lbl">All-time P&amp;L</div><div class="val" id="kAll">$—</div><div class="sub">Realized + unreal.</div></div>
+        <div class="kpi" id="kpiWin"><div class="lbl">Win Rate</div><div class="val" id="kWin">—</div><div class="sub" id="kWinSub">0W / 0L</div></div>
+        <div class="kpi" id="kpiTr"><div class="lbl">Trades Today</div><div class="val" id="kTr">—</div><div class="sub">Executed</div></div>
+        <div class="kpi" id="kpiSt"><div class="lbl">Straddle Cost</div><div class="val" id="kSt">—</div><div class="sub" id="kStSub">No market wired</div></div>
+      </div>
+
+      <div class="panel radar-panel">
+        <span class="br1"></span><span class="br2"></span>
+        <h2>SIGNAL RADAR <span class="meta" id="radarMeta">scanning…</span></h2>
+        <div class="radar-wrap">
+          <canvas id="radarCanvas" width="400" height="400"></canvas>
+          <div class="radar-overlay"></div>
+        </div>
+        <div class="radar-meta">
+          <span>SWEEP <span class="v">ACTIVE</span></span>
+          <span>BLIPS <span class="v" id="radarBlips">0</span></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CENTER — GLOBE + CHART + TRENDING -->
+    <div class="rail">
+
+      <div class="globe-stage">
+        <span class="br3"></span><span class="br4"></span>
+        <div class="globe-title">LIVE MARKET GRID</div>
+        <div class="globe-readout tl"><span class="dim">ACTIVE POSITIONS</span><span class="big" id="grPositions">00</span></div>
+        <div class="globe-readout tr"><span class="dim">EXPOSURE</span><span class="big" id="grExposure">$0</span></div>
+        <div class="globe-readout bl"><span class="dim">WIN RATE</span><span class="big" id="grWinrate">—</span></div>
+        <div class="globe-readout br"><span class="dim">CLOCK</span><span class="big" id="grClock">--:--:--</span></div>
+        <div id="globeContainer"></div>
+        <div class="hud-rings" aria-hidden="true">
+          <svg viewBox="0 0 800 800">
+            <defs>
+              <radialGradient id="ringGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="rgba(0,229,255,0)"/>
+                <stop offset="100%" stop-color="rgba(0,229,255,0.4)"/>
+              </radialGradient>
+            </defs>
+            <g class="ring-g-1">
+              <circle cx="400" cy="400" r="380" fill="none" stroke="rgba(0,229,255,0.14)" stroke-width="1" stroke-dasharray="2 6"/>
+              <circle cx="400" cy="400" r="360" fill="none" stroke="rgba(0,229,255,0.35)" stroke-width="1.5" stroke-dasharray="60 180 20 60 10 40"/>
+              <g fill="rgba(0,229,255,0.5)" font-family="JetBrains Mono" font-size="9" letter-spacing="2">
+                <text x="400" y="30">N</text><text x="780" y="405">E</text>
+                <text x="400" y="785">S</text><text x="10" y="405">W</text>
+              </g>
+            </g>
+            <g class="ring-g-2">
+              <circle cx="400" cy="400" r="330" fill="none" stroke="rgba(0,229,255,0.18)" stroke-width="1" stroke-dasharray="1 3"/>
+              <circle cx="400" cy="400" r="310" fill="none" stroke="rgba(0,229,255,0.28)" stroke-width="1" stroke-dasharray="20 80"/>
+            </g>
+            <g class="ring-g-3">
+              <circle cx="400" cy="400" r="290" fill="none" stroke="rgba(0,229,255,0.12)" stroke-width="1"/>
+              <circle cx="400" cy="400" r="270" fill="none" stroke="rgba(0,229,255,0.22)" stroke-width="0.5" stroke-dasharray="4 12"/>
+              <line x1="400" y1="110" x2="400" y2="140" stroke="rgba(0,229,255,0.5)" stroke-width="1"/>
+              <line x1="400" y1="660" x2="400" y2="690" stroke="rgba(0,229,255,0.5)" stroke-width="1"/>
+              <line x1="110" y1="400" x2="140" y2="400" stroke="rgba(0,229,255,0.5)" stroke-width="1"/>
+              <line x1="660" y1="400" x2="690" y2="400" stroke="rgba(0,229,255,0.5)" stroke-width="1"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <div class="tickertape"><div class="track" id="tickerTrack"><span>INITIALIZING FEED…</span></div></div>
 
       <div class="panel">
-        <h2>PORTFOLIO / P&L <span class="meta" id="chartMeta">derived</span>
+        <span class="br1"></span><span class="br2"></span>
+        <h2>PORTFOLIO / P&amp;L <span class="meta" id="chartMeta">derived</span>
           <div class="chart-tabs" id="chartTabs">
             <button class="chart-tab" data-range="1H">1H</button>
             <button class="chart-tab" data-range="24H">24H</button>
@@ -463,45 +799,18 @@
       </div>
 
       <div class="panel">
+        <span class="br1"></span><span class="br2"></span>
         <h2>TRENDING EVENTS <span class="meta" id="trendMeta">loading…</span></h2>
         <div class="trend-strip" id="trendStrip"></div>
       </div>
 
-      <div class="panel">
-        <h2>MARKET BROWSER <span class="meta" id="browserMeta">0</span></h2>
-        <div class="browser-tools">
-          <input type="text" id="browserSearch" placeholder="Search markets…" />
-          <div class="chips" id="browserChips">
-            <button class="chip active" data-cat="all">All</button>
-            <button class="chip" data-cat="politics">Politics</button>
-            <button class="chip" data-cat="crypto">Crypto</button>
-            <button class="chip" data-cat="sports">Sports</button>
-            <button class="chip" data-cat="culture">Culture</button>
-          </div>
-        </div>
-        <div id="browserList"></div>
-      </div>
-
-      <div class="panel">
-        <h2>OPEN POSITIONS <span class="meta" id="posMeta">0 active</span></h2>
-        <div id="positionsGrid">
-          <div class="empty"><div class="big">NO WALLET</div>Configure wallet to sync positions.</div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h2>RECENT TRADES <span class="meta" id="tradesMeta">0</span></h2>
-        <div id="tradesBox">
-          <div class="empty">Trade history will appear here.</div>
-        </div>
-      </div>
-
     </div>
 
-    <!-- ============ RIGHT RAIL ============ -->
-    <div class="col-right">
+    <!-- RIGHT RAIL — AGENT / CHAT / LIVE FEED -->
+    <div class="rail">
 
       <div class="panel agent-status">
+        <span class="br1"></span><span class="br2"></span>
         <h2>AGENT STATUS</h2>
         <div class="row"><span class="k">Strategy</span><span class="v accent" id="asStrat">—</span></div>
         <div class="row"><span class="k">State</span><span class="v" id="asState">IDLE</span></div>
@@ -511,6 +820,7 @@
       </div>
 
       <div class="panel chat-panel">
+        <span class="br1"></span><span class="br2"></span>
         <h2>AGENT CHAT <span class="meta" id="chatConn" style="display:flex;"><span class="conn off"><span class="dot"></span><span id="chatConnText">OFFLINE</span></span></span></h2>
         <div class="chat-log" id="chatLog"></div>
         <div class="chat-input-row">
@@ -520,8 +830,53 @@
         <div class="slash-hint">/refresh · /markets · /news · /positions</div>
       </div>
 
+      <div class="panel">
+        <span class="br1"></span><span class="br2"></span>
+        <h2>LIVE FEED <span class="meta" id="feedMeta">0</span></h2>
+        <div class="feed" id="liveFeed">
+          <div class="feed-item"><span class="t">--:--:--</span>Awaiting signal…</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ============ BELOW — MARKET BROWSER / POSITIONS / TRADES ============ -->
+  <div class="hud-below">
+    <div class="panel">
+      <span class="br1"></span><span class="br2"></span>
+      <h2>MARKET BROWSER <span class="meta" id="browserMeta">0</span></h2>
+      <div class="browser-tools">
+        <input type="text" id="browserSearch" placeholder="Search markets…" />
+        <div class="chips" id="browserChips">
+          <button class="chip active" data-cat="all">All</button>
+          <button class="chip" data-cat="politics">Politics</button>
+          <button class="chip" data-cat="crypto">Crypto</button>
+          <button class="chip" data-cat="sports">Sports</button>
+          <button class="chip" data-cat="culture">Culture</button>
+        </div>
+      </div>
+      <div id="browserList"></div>
+    </div>
+
+    <div class="panel">
+      <span class="br1"></span><span class="br2"></span>
+      <h2>OPEN POSITIONS <span class="meta" id="posMeta">0 active</span></h2>
+      <div id="positionsGrid">
+        <div class="empty"><div class="big">NO WALLET</div>Configure wallet to sync positions.</div>
+      </div>
     </div>
   </div>
+
+  <div class="panel" style="margin-top:14px;">
+    <span class="br1"></span><span class="br2"></span>
+    <h2>RECENT TRADES <span class="meta" id="tradesMeta">0</span></h2>
+    <div id="tradesBox">
+      <div class="empty">Trade history will appear here.</div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -700,7 +1055,7 @@
       return x.toFixed(1) + ',' + y.toFixed(1);
     }).join(' ');
     const last = btcHistory[btcHistory.length - 1], first = btcHistory[0];
-    const color = last >= first ? '#00f5a0' : '#ff4d6d';
+    const color = last >= first ? '#00e5ff' : '#ff4d6d';
     svg.innerHTML =
       '<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">' +
       '<stop offset="0" stop-color="'+color+'" stop-opacity="0.4"/><stop offset="1" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs>' +
@@ -911,7 +1266,7 @@
     for (let i = 0; i <= 4; i++) {
       const y = PAD.t + (plotH * i / 4);
       const v = yMax - (yRng * i / 4);
-      grid += '<line x1="'+PAD.l+'" y1="'+y+'" x2="'+(W-PAD.r)+'" y2="'+y+'" stroke="rgba(0,245,160,0.06)" stroke-width="1"/>';
+      grid += '<line x1="'+PAD.l+'" y1="'+y+'" x2="'+(W-PAD.r)+'" y2="'+y+'" stroke="rgba(0,229,255,0.06)" stroke-width="1"/>';
       grid += '<text x="'+(PAD.l-6)+'" y="'+(y+3)+'" text-anchor="end" fill="#6b7a78" font-family="JetBrains Mono" font-size="9">'+fmtUsd(v)+'</text>';
     }
 
@@ -921,18 +1276,18 @@
     svg.innerHTML =
       '<defs>'
       + '<linearGradient id="pnlGrad" x1="0" y1="0" x2="0" y2="1">'
-      + '<stop offset="0" stop-color="#00f5a0" stop-opacity="0.35"/>'
-      + '<stop offset="1" stop-color="#00f5a0" stop-opacity="0"/>'
+      + '<stop offset="0" stop-color="#00e5ff" stop-opacity="0.35"/>'
+      + '<stop offset="1" stop-color="#00e5ff" stop-opacity="0"/>'
       + '</linearGradient>'
       + '</defs>'
       + grid
       + '<path d="'+areaPath+'" fill="url(#pnlGrad)"/>'
-      + '<path d="'+path+'" fill="none" stroke="#00f5a0" stroke-width="1.8" stroke-linejoin="round"/>'
-      + '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="4" fill="#00f5a0">'
+      + '<path d="'+path+'" fill="none" stroke="#00e5ff" stroke-width="1.8" stroke-linejoin="round"/>'
+      + '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="4" fill="#00e5ff">'
       + '<animate attributeName="r" values="4;7;4" dur="1.8s" repeatCount="indefinite"/>'
       + '<animate attributeName="opacity" values="1;0.4;1" dur="1.8s" repeatCount="indefinite"/>'
       + '</circle>'
-      + '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="2.5" fill="#00f5a0"/>';
+      + '<circle cx="'+lastX.toFixed(1)+'" cy="'+lastY.toFixed(1)+'" r="2.5" fill="#00e5ff"/>';
   }
 
   $('chartTabs').addEventListener('click', (e) => {
@@ -1314,6 +1669,9 @@
   // Supported fns: addFeedItem, refreshDashboard, updateWallet, updateAgentStatus,
   //                setStraddleTokens, pushAgentMessage
   function processClawdashBlocks(text) {
+    if (typeof text !== 'string') {
+      try { text = String(text == null ? '' : text); } catch { return ''; }
+    }
     const allowed = {
       addFeedItem: (a) => window.addFeedItem(a.message || a.text || '', a.type || ''),
       refreshDashboard: () => window.refreshDashboard(),
@@ -1363,13 +1721,14 @@
       if (handled) { addBubble('> executed locally', 'sys'); return; }
     }
     if (!gwConnected) { addBubble('Not connected to agent.', 'sys'); return; }
-    // Typing indicator
+    // Typing indicator — persists until first agent frame arrives (upsertStreamingBubble removes it).
+    // Safety timeout kills it after 90s in case the agent never responds.
     const typing = document.createElement('div');
     typing.className = 'bubble agent typing';
     typing.innerHTML = '<i></i><i></i><i></i>';
     chatLog.appendChild(typing);
     chatLog.scrollTop = chatLog.scrollHeight;
-    setTimeout(() => { try { chatLog.removeChild(typing); } catch {} }, 6000);
+    setTimeout(() => { try { if (typing.parentNode) typing.parentNode.removeChild(typing); } catch {} }, 90000);
     {
       const _sk = window.__AGENT_ID__ ? ('agent:' + window.__AGENT_ID__ + ':main') : 'main';
       gwSend({ type: 'req', id: nextId(), method: 'chat.send', params: { sessionKey: _sk, message: text, idempotencyKey: String(Date.now()) } });
@@ -1415,8 +1774,8 @@
     setInterval(loadPortfolio, 30000);
   }
   function boot() {
-    addBubble('SCOUT // POLYMARKET online.', 'sys');
-    addBubble('JARVIS HUD engaged — accent #00f5a0', 'sys');
+    addBubble('POLYMARKET // HUD online.', 'sys');
+    addBubble('JARVIS deck engaged — accent #00e5ff', 'sys');
     connectBtc();
     loadTrending();
     loadBrowser();
@@ -1429,7 +1788,316 @@
       $('hWallet').textContent = 'NOT SET';
     }
     connectGateway();
+    initHud();
   }
+
+  // ================================================================
+  // JARVIS HUD — globe, radar, ticker, feed, boot overlay, audio
+  // ================================================================
+  let GLOBE = null, RADAR_CTX = null, RADAR_BLIPS = [], RADAR_ANGLE = 0, AUDIO_ON = false, AUDIO_CTX = null;
+
+  function initHud() {
+    // Hide boot overlay after 900ms (with GSAP entrance if available)
+    setTimeout(() => {
+      const o = $('bootOverlay'); if (o) o.classList.add('hidden');
+      if (window.gsap) {
+        gsap.from('.panel, .kpi, .globe-stage, .tickertape', {
+          autoAlpha: 0, y: 8, duration: 0.5, stagger: 0.04, ease: 'power2.out'
+        });
+      }
+    }, 900);
+
+    initGlobe();
+    initRadar();
+    initTickertape();
+    initAudioToggle();
+    initClock();
+    // Random CRT flicker pass on panels
+    setInterval(() => {
+      const panels = document.querySelectorAll('.panel, .kpi');
+      if (!panels.length) return;
+      const p = panels[Math.floor(Math.random()*panels.length)];
+      if (!p) return;
+      p.style.transition = 'opacity 80ms';
+      p.style.opacity = '0.55';
+      setTimeout(() => { p.style.opacity = ''; }, 90);
+    }, 7000);
+  }
+
+  function initClock() {
+    const tick = () => {
+      const el = $('grClock'); if (el) el.textContent = hhmmss();
+    };
+    tick(); setInterval(tick, 1000);
+  }
+
+  // ----- GLOBE -----
+  function initGlobe() {
+    const el = document.getElementById('globeContainer');
+    if (!el || typeof Globe !== 'function') {
+      // globe.gl not loaded yet — retry briefly
+      if (typeof Globe !== 'function') return setTimeout(initGlobe, 300);
+    }
+    try {
+      GLOBE = Globe()(el)
+        .backgroundColor('rgba(0,0,0,0)')
+        .showAtmosphere(true)
+        .atmosphereColor('#00e5ff')
+        .atmosphereAltitude(0.22)
+        .showGraticules(true)
+        .pointOfView({ lat: 20, lng: -30, altitude: 2.2 }, 0);
+      // Dark cyan globe material
+      try {
+        const mat = GLOBE.globeMaterial();
+        if (mat) {
+          mat.color && mat.color.set && mat.color.set('#020a14');
+          mat.emissive && mat.emissive.set && mat.emissive.set('#001824');
+          mat.emissiveIntensity = 0.4;
+          mat.shininess = 10;
+        }
+      } catch(_) {}
+      GLOBE.controls().autoRotate = true;
+      GLOBE.controls().autoRotateSpeed = 0.35;
+      GLOBE.controls().enableZoom = false;
+
+      // HTML element pins
+      GLOBE.htmlElementsData([])
+        .htmlElement(d => {
+          const wrap = document.createElement('div');
+          const pin = document.createElement('div');
+          pin.className = 'globe-pin' + (d.loss ? ' loss' : '');
+          wrap.appendChild(pin);
+          if (d.label) {
+            const lbl = document.createElement('div');
+            lbl.className = 'globe-pin-label';
+            lbl.textContent = d.label;
+            wrap.appendChild(lbl);
+          }
+          return wrap;
+        });
+
+      // Rings that propagate at active markets
+      GLOBE.ringsData([])
+        .ringColor(() => t => `rgba(0,229,255,${1 - t})`)
+        .ringMaxRadius(6)
+        .ringPropagationSpeed(3)
+        .ringRepeatPeriod(1800);
+
+      // Responsive
+      const resize = () => {
+        const r = el.getBoundingClientRect();
+        GLOBE.width(r.width).height(r.height);
+      };
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Seed with some "market regions" until positions sync
+      GLOBE.htmlElementsData([
+        { lat: 38.9, lng: -77.0, label: 'US POLITICS' },
+        { lat: 37.7, lng: -122.4, label: 'CRYPTO' },
+        { lat: 51.5, lng: -0.12, label: 'EU' },
+        { lat: 35.6, lng: 139.6, label: 'ASIA' },
+        { lat: -23.5, lng: -46.6, label: 'LATAM' }
+      ]);
+      GLOBE.ringsData([
+        { lat: 38.9, lng: -77.0 },
+        { lat: 37.7, lng: -122.4 }
+      ]);
+    } catch (e) {
+      console.warn('globe init failed', e);
+    }
+  }
+
+  // Hook: rebuild globe pins from positions after each portfolio sync
+  function syncGlobeFromPositions() {
+    if (!GLOBE || !positions.length) return;
+    // Naive topic→latlng mapping
+    const topicMap = [
+      { re: /trump|biden|election|senate|congress|president|politic/i, lat: 38.9, lng: -77.0, label: 'US POLITICS' },
+      { re: /bitcoin|btc|eth|crypto|solana|sol\b/i, lat: 37.7, lng: -122.4, label: 'CRYPTO' },
+      { re: /nba|nfl|mlb|sport|football|soccer|tennis/i, lat: 40.7, lng: -74.0, label: 'SPORTS' },
+      { re: /oscar|film|music|celeb|pop/i, lat: 34.0, lng: -118.2, label: 'CULTURE' },
+      { re: /ukraine|russia|china|israel|gaza|war/i, lat: 50.4, lng: 30.5, label: 'GEOPOL' },
+    ];
+    const pins = positions.slice(0, 20).map((p, i) => {
+      const t = (p.title || '');
+      let hit = topicMap.find(m => m.re.test(t));
+      if (!hit) hit = { lat: 20 + (i*11)%40, lng: -60 + (i*31)%180, label: (t||'').slice(0,18).toUpperCase() };
+      return { lat: hit.lat + (Math.random()-.5)*3, lng: hit.lng + (Math.random()-.5)*3, label: (t||'').slice(0,22).toUpperCase() || hit.label, loss: (p.cashPnl||0) < 0 };
+    });
+    GLOBE.htmlElementsData(pins);
+    GLOBE.ringsData(pins.slice(0, 6).map(p => ({ lat: p.lat, lng: p.lng })));
+    // Update globe readouts
+    const gp = $('grPositions'); if (gp) gp.textContent = String(positions.length).padStart(2,'0');
+    const ge = $('grExposure'); if (ge) ge.textContent = fmtUsd(portfolioValue);
+    const wins = positions.filter(p => (p.cashPnl||0) > 0).length;
+    const losses = positions.filter(p => (p.cashPnl||0) < 0).length;
+    const gw = $('grWinrate'); if (gw) gw.textContent = (wins+losses) ? Math.round(wins/(wins+losses)*100) + '%' : '—';
+  }
+
+  // ----- RADAR -----
+  function initRadar() {
+    const c = $('radarCanvas'); if (!c) return;
+    RADAR_CTX = c.getContext('2d');
+    // Seed blips
+    for (let i = 0; i < 12; i++) {
+      RADAR_BLIPS.push({
+        angle: Math.random() * Math.PI * 2,
+        radius: 30 + Math.random() * 160,
+        strength: Math.random(),
+        detected: 0
+      });
+    }
+    drawRadar();
+  }
+  function drawRadar() {
+    if (!RADAR_CTX) return requestAnimationFrame(drawRadar);
+    const ctx = RADAR_CTX, W = ctx.canvas.width, H = ctx.canvas.height;
+    const cx = W/2, cy = H/2, maxR = Math.min(W, H)/2 - 10;
+    // Trail fade
+    ctx.fillStyle = 'rgba(4,6,11,0.18)';
+    ctx.fillRect(0, 0, W, H);
+
+    // Grid rings
+    ctx.strokeStyle = 'rgba(0,229,255,0.12)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 4; i++) {
+      ctx.beginPath(); ctx.arc(cx, cy, (maxR/4)*i, 0, Math.PI*2); ctx.stroke();
+    }
+    // Cross lines
+    ctx.beginPath();
+    ctx.moveTo(cx - maxR, cy); ctx.lineTo(cx + maxR, cy);
+    ctx.moveTo(cx, cy - maxR); ctx.lineTo(cx, cy + maxR);
+    ctx.stroke();
+
+    // Sweep wedge
+    RADAR_ANGLE += 0.018;
+    const sweepWidth = 0.45;
+    const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+    grd.addColorStop(0, 'rgba(0,229,255,0.55)');
+    grd.addColorStop(1, 'rgba(0,229,255,0)');
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, maxR, RADAR_ANGLE - sweepWidth, RADAR_ANGLE);
+    ctx.closePath();
+    ctx.fillStyle = grd;
+    ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Blips
+    let visible = 0;
+    for (const b of RADAR_BLIPS) {
+      const bx = cx + Math.cos(b.angle) * b.radius;
+      const by = cy + Math.sin(b.angle) * b.radius;
+      // Detect when sweep passes over
+      let da = RADAR_ANGLE - b.angle;
+      while (da < 0) da += Math.PI*2;
+      if (da < sweepWidth) b.detected = 1;
+      b.detected = Math.max(0, b.detected - 0.006);
+      if (b.detected > 0.05) {
+        visible++;
+        ctx.fillStyle = `rgba(0,229,255,${b.detected})`;
+        ctx.shadowColor = '#00e5ff';
+        ctx.shadowBlur = 10 * b.detected;
+        ctx.beginPath(); ctx.arc(bx, by, 2.5 + b.strength*2, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    }
+    const bl = $('radarBlips'); if (bl) bl.textContent = String(visible).padStart(2,'0');
+    requestAnimationFrame(drawRadar);
+  }
+
+  // ----- TICKERTAPE -----
+  function initTickertape() {
+    // Seed from trending events when loaded; refresh every 30s
+    const rebuild = () => {
+      const track = $('tickerTrack'); if (!track) return;
+      const items = [];
+      if (trendingEvents && trendingEvents.length) {
+        for (const e of trendingEvents.slice(0, 10)) {
+          const m0 = (e.markets && e.markets[0]) || {};
+          const prices = parseJsonField(m0.outcomePrices, [null, null]);
+          const yes = prices[0] != null ? (parseFloat(prices[0])*100).toFixed(0) + '¢' : '—';
+          const vol = e.volume24hr ? '$' + (e.volume24hr>=1e6?(e.volume24hr/1e6).toFixed(1)+'M':(e.volume24hr/1e3).toFixed(0)+'K') : '';
+          items.push('<span><b>' + escapeHtml((e.title||'').slice(0, 60)) + '</b> ' + yes + ' · ' + vol + '</span>');
+        }
+      }
+      if (!items.length) items.push('<span><b>AWAITING</b> market feed…</span>');
+      // Duplicate for seamless loop
+      track.innerHTML = items.join(' · ') + ' · ' + items.join(' · ');
+    };
+    rebuild();
+    setInterval(rebuild, 30000);
+  }
+
+  // ----- LIVE FEED -----
+  function pushFeed(text, kind) {
+    const box = $('liveFeed'); if (!box) return;
+    const el = document.createElement('div');
+    el.className = 'feed-item' + (kind ? ' ' + kind : '');
+    el.innerHTML = '<span class="t">' + hhmmss() + '</span>' + escapeHtml(text);
+    box.insertBefore(el, box.firstChild);
+    while (box.children.length > 40) box.removeChild(box.lastChild);
+    const m = $('feedMeta'); if (m) m.textContent = box.children.length;
+    if (AUDIO_ON) beep(kind === 'loss' ? 280 : 660);
+  }
+
+  // ----- AUDIO -----
+  function initAudioToggle() {
+    const btn = $('audioToggle'); if (!btn) return;
+    btn.addEventListener('click', () => {
+      AUDIO_ON = !AUDIO_ON;
+      btn.classList.toggle('off', !AUDIO_ON);
+      if (AUDIO_ON && !AUDIO_CTX) {
+        try { AUDIO_CTX = new (window.AudioContext || window.webkitAudioContext)(); } catch(_) {}
+      }
+      if (AUDIO_ON) beep(880);
+    });
+  }
+  function beep(freq) {
+    if (!AUDIO_CTX) return;
+    try {
+      const o = AUDIO_CTX.createOscillator(), g = AUDIO_CTX.createGain();
+      o.type = 'sine'; o.frequency.value = freq || 660;
+      g.gain.value = 0.05;
+      o.connect(g); g.connect(AUDIO_CTX.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.0001, AUDIO_CTX.currentTime + 0.18);
+      o.stop(AUDIO_CTX.currentTime + 0.2);
+    } catch(_) {}
+  }
+
+  // ---- Hook into existing data flows ----
+  const _origRenderKpis = renderKpis;
+  renderKpis = function() {
+    _origRenderKpis.apply(this, arguments);
+    try { syncGlobeFromPositions(); } catch(_) {}
+  };
+  const _origRenderTrades = renderTrades;
+  renderTrades = function() {
+    _origRenderTrades.apply(this, arguments);
+    // Emit latest trade into the live feed (only new ones)
+    try {
+      if (!trades.length) return;
+      const latest = trades[0];
+      const key = (latest.timestamp||0) + ':' + (latest.price||0);
+      if (window.__lastTradeKey === key) return;
+      window.__lastTradeKey = key;
+      const won = (latest.realizedPnl||0) > 0;
+      const lost = (latest.realizedPnl||0) < 0;
+      pushFeed(
+        (latest.side || '?') + ' ' + (latest.outcome || '—') + ' @ ' + (latest.price||0).toFixed(3) + ' · ' + (latest.title||'').slice(0, 38),
+        won ? 'win' : (lost ? 'loss' : '')
+      );
+    } catch(_) {}
+  };
+  const _origLoadTrending = loadTrending;
+  loadTrending = async function() {
+    await _origLoadTrending.apply(this, arguments);
+    try { initTickertape(); } catch(_) {}
+  };
+
   boot();
 </script>
 </body>
