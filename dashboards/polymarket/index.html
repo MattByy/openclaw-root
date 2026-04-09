@@ -1252,7 +1252,7 @@
       // Subscribe to main session messages
       {
         const _sk = window.__AGENT_ID__ ? ('agent:' + window.__AGENT_ID__ + ':main') : 'main';
-        gwSend({ type: 'req', id: nextId(), method: 'sessions.messages.subscribe', params: { sessionKey: _sk } });
+        gwSend({ type: 'req', id: nextId(), method: 'sessions.messages.subscribe', params: { key: _sk } });
       }
       return;
     }
@@ -1329,7 +1329,10 @@
     chatLog.appendChild(typing);
     chatLog.scrollTop = chatLog.scrollHeight;
     setTimeout(() => { try { chatLog.removeChild(typing); } catch {} }, 6000);
-    gwSend({ type: 'req', id: nextId(), method: 'chat.send', params: { text, idempotencyKey: String(Date.now()) } });
+    {
+      const _sk = window.__AGENT_ID__ ? ('agent:' + window.__AGENT_ID__ + ':main') : 'main';
+      gwSend({ type: 'req', id: nextId(), method: 'chat.send', params: { sessionKey: _sk, message: text, idempotencyKey: String(Date.now()) } });
+    }
   }
 
   // ================================================================
