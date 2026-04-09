@@ -2507,12 +2507,16 @@
       return;
     }
     // --- "chat" events: final-message mirrors of the streamed agent output.
-    //     If we already rendered the runId via stream, drop these to avoid duplicates / [object Object].
+    //     Skip entirely for user role (we rendered it locally in sendChat).
+    //     For assistant, skip if the stream already painted this runId.
     if (frame.type === 'event' && frame.event === 'chat') {
       const p = frame.payload || {};
+      const msg = p.message || {};
+      const role = msg.role || p.role || 'assistant';
+      if (role === 'user') return; // local echo — already rendered
       const runId = String(p.runId || '');
       if (runId && _streamBubbles[runId]) return; // already rendered by the stream
-      const text = extractFrameText(p.message || p);
+      const text = extractFrameText(msg || p);
       if (text) {
         const cleaned = processClawdashBlocks(text);
         if (cleaned.trim()) addBubble(cleaned, 'agent');
@@ -2522,16 +2526,24 @@
     // --- Legacy / non-streaming session.message frames
     if (frame.type === 'event' && frame.event === 'session.message') {
       const p = frame.payload || frame.params || {};
-      const runId = String(p.runId || (p.message && p.message.runId) || '');
-      if (runId && _streamBubbles[runId]) return; // already rendered
-      const text = extractFrameText(p.message || p);
-      const role = (p.message && p.message.role) || p.role || 'agent';
+      const msg = p.message || {};
+      const role = msg.role || p.role || 'agent';
+      if (role === 'user') return; // local echo — already rendered
+      const runId = String(p.runId || msg.runId || '');
+      if (runId && _streamBubbles[runId]) return; // already rendered by the stream
+      const text = extractFrameText(msg || p);
       if (text) {
         const cleaned = processClawdashBlocks(text);
-        if (cleaned.trim()) addBubble(cleaned, role === 'user' ? 'user' : 'agent');
+        if (cleaned.trim()) addBubble(cleaned, 'agent');
       }
       return;
     }
+    // Debug: keep a rolling log of unhandled frames for console inspection
+    try {
+      window.__lastFrames = window.__lastFrames || [];
+      window.__lastFrames.push({ t: Date.now(), frame });
+      if (window.__lastFrames.length > 40) window.__lastFrames.shift();
+    } catch {}
   }
 
   // Robustly extract a text string from any of the shapes OpenClaw emits:
