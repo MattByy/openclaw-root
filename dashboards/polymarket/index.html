@@ -1128,7 +1128,7 @@
   window.pushAgentMessage = function(text) { addBubble(text, 'agent'); };
 
   // ---- WebSocket client ----
-  let gw = null, gwReconnect = 1000, gwRid = 0, gwConnected = false;
+  let gw = null, gwReconnect = 1000, gwRid = 0, gwConnected = false, gwConnectReqId = null;
   function setChatConn(state, text) {
     const c = $('chatConn').querySelector('.conn');
     c.className = 'conn ' + state;
@@ -1209,8 +1209,9 @@
       if (!deviceId) { deviceId = hex32(); try { localStorage.setItem('claw_device_id', deviceId); } catch(_) {} }
       var instanceId = localStorage.getItem('claw_instance_id');
       if (!instanceId) { instanceId = uuid(); try { localStorage.setItem('claw_instance_id', instanceId); } catch(_) {} }
+      gwConnectReqId = nextId();
       gwSend({
-        type: 'req', id: nextId(), method: 'connect',
+        type: 'req', id: gwConnectReqId, method: 'connect',
         params: {
           minProtocol: 3, maxProtocol: 3,
           client: {
@@ -1237,10 +1238,10 @@
       });
       return;
     }
-    if (frame.type === 'res' && frame.method === 'connect') {
-      if (frame.error || frame.result === false) {
+    if (frame.type === 'res' && frame.id === gwConnectReqId) {
+      if (frame.ok === false || frame.error) {
         setChatConn('off', 'AUTH FAILED');
-        addBubble('Gateway rejected auth: ' + (frame.error && frame.error.message || 'unknown'), 'sys');
+        addBubble('Gateway rejected auth: ' + (frame.error && (frame.error.message || frame.error.code) || 'unknown'), 'sys');
         try { gw.close(); } catch {}
         return;
       }

@@ -181,7 +181,8 @@ const openclawConfig = {
             enabled: true,
             allowInsecureAuth: true,
             dangerouslyDisableDeviceAuth: true,
-            dangerouslyAllowHostHeaderOriginFallback: true
+            dangerouslyAllowHostHeaderOriginFallback: true,
+            allowedOrigins: ['*']
         }
     },
     hooks: {
