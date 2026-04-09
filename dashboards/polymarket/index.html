@@ -1143,11 +1143,24 @@
     display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 1200px; margin: 0 auto;
   }
   .command-wrap.cmd-split {
-    grid-template-columns: 340px 1fr;
+    grid-template-columns: 1fr 380px;
     max-width: 1500px;
   }
   .cmd-left, .cmd-right { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
   @media (max-width: 1000px) { .command-wrap.cmd-split { grid-template-columns: 1fr; } }
+  .inputs-panel { display: flex; flex-direction: column; gap: 10px; }
+  .inputs-panel h2 { margin-bottom: 2px; }
+  .input-group { border: 1px solid rgba(255,255,255,0.06); border-left: 2px solid var(--accent-dim); background: rgba(255,255,255,0.015); border-radius: 2px; padding: 12px 14px; }
+  .input-group .ig-head { display: flex; align-items: center; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; }
+  .input-group .ig-head .count { color: var(--text-dim); }
+  .input-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .input-chip { cursor: pointer; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: var(--text); font-size: 10px; padding: 6px 10px; border-radius: 20px; transition: all .2s ease; font-family: inherit; }
+  .input-chip:hover { border-color: var(--accent); background: rgba(0,229,255,0.08); color: var(--accent); transform: translateY(-1px); box-shadow: 0 0 10px var(--accent-dim); }
+  .input-list { display: flex; flex-direction: column; gap: 4px; max-height: 200px; overflow-y: auto; }
+  .input-list::-webkit-scrollbar { width: 3px; } .input-list::-webkit-scrollbar-thumb { background: var(--accent-dim); }
+  .input-row { cursor: pointer; padding: 8px 10px; border: 1px solid transparent; border-left: 2px solid rgba(0,229,255,0.2); background: rgba(255,255,255,0.01); font-size: 11px; line-height: 1.4; color: var(--text); transition: all .2s ease; border-radius: 2px; }
+  .input-row:hover { background: rgba(0,229,255,0.06); border-left-color: var(--accent); border-color: var(--accent-dim); transform: translateX(2px); }
+  .input-row .meta-line { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--text-dim); margin-top: 3px; letter-spacing: 1px; text-transform: uppercase; }
   .cmd-left .agent-hero { padding: 16px 20px; }
   .cmd-left .ai-orb { width: 48px; height: 48px; }
   .cmd-left .agent-hero .nm { font-size: 15px; letter-spacing: 3px; }
@@ -1546,27 +1559,6 @@
     <div class="command-wrap cmd-split">
 
       <div class="cmd-left">
-        <div class="panel agent-hero">
-          <span class="br1"></span><span class="br2"></span>
-          <div class="agent-ident">
-            <div class="ai-orb"></div>
-            <div style="flex:1;">
-              <div class="nm">ORACLE</div>
-              <div class="st" id="asStrat">Strategist online</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <span class="br1"></span><span class="br2"></span>
-          <h2>STRATEGIES <span class="meta" id="stratCount">0</span></h2>
-          <div class="strat-list" id="stratList">
-            <div class="empty"><div class="big">NO STRATEGIES</div>Ask the agent to create one.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="cmd-right">
         <div class="panel chat-panel big-chat">
           <span class="br1"></span><span class="br2"></span>
           <h2>DIALOGUE <span class="meta" id="chatConn" style="display:flex;"><span class="conn off"><span class="dot"></span><span id="chatConnText">OFFLINE</span></span></span></h2>
@@ -1584,6 +1576,49 @@
             <button id="chatSend" disabled>SEND</button>
           </div>
           <div class="slash-hint">/refresh · /markets · /news · /positions · 🎙 voice</div>
+        </div>
+      </div>
+
+      <div class="cmd-right">
+        <div class="panel agent-hero">
+          <span class="br1"></span><span class="br2"></span>
+          <div class="agent-ident">
+            <div class="ai-orb"></div>
+            <div style="flex:1;">
+              <div class="nm">ORACLE</div>
+              <div class="st" id="asStrat">Strategist online</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel inputs-panel">
+          <span class="br1"></span><span class="br2"></span>
+          <h2>DATA INPUTS <span class="meta">tap to ask</span></h2>
+
+          <div class="input-group">
+            <div class="ig-head">POPULAR QUESTIONS</div>
+            <div class="input-chips" id="inputQuestions"></div>
+          </div>
+
+          <div class="input-group">
+            <div class="ig-head">TRENDING TOPICS <span class="count" id="inputTopicsCount">—</span></div>
+            <div class="input-chips" id="inputTopics"></div>
+          </div>
+
+          <div class="input-group">
+            <div class="ig-head">TRENDING ASSETS <span class="count" id="inputAssetsCount">—</span></div>
+            <div class="input-chips" id="inputAssets"></div>
+          </div>
+
+          <div class="input-group">
+            <div class="ig-head">TRENDING MARKETS <span class="count" id="inputMarketsCount">—</span></div>
+            <div class="input-list" id="inputMarkets"><div class="empty" style="padding:10px; font-size:10px;">Loading…</div></div>
+          </div>
+
+          <div class="input-group">
+            <div class="ig-head">LATEST HEADLINES <span class="count" id="inputNewsCount">—</span></div>
+            <div class="input-list" id="inputNews"><div class="empty" style="padding:10px; font-size:10px;">Loading…</div></div>
+          </div>
         </div>
       </div>
 
@@ -2819,6 +2854,135 @@
   // ================================================================
   let AUDIO_ON = false, AUDIO_CTX = null;
 
+  // ================================================================
+  // DATA INPUTS — Command page right column
+  // Tap-to-ask chips & rows that inject a prompt into the chat.
+  // ================================================================
+  function askAgent(text) {
+    if (!text) return;
+    const inp = $('chatInput'); if (!inp) return;
+    inp.value = text;
+    inp.focus();
+    if (typeof sendChat === 'function') { try { sendChat(); return; } catch(_) {} }
+    const btn = $('chatSend'); if (btn) btn.click();
+  }
+
+  const POPULAR_QUESTIONS = [
+    "What's the situation with BTC right now?",
+    "Biggest movers on Polymarket today?",
+    "Where's the edge in political markets?",
+    "Summarise the top 5 news stories impacting markets",
+    "Any mispriced markets under 10¢?",
+    "Analyse my open positions and flag risks",
+    "What's the Fed doing this week?",
+    "Trending crypto narratives today",
+    "Sports markets with the best value",
+    "Geopolitical risks I should be watching",
+    "Compare ETH vs SOL momentum",
+    "Which markets have the tightest spreads?"
+  ];
+
+  const TRENDING_TOPICS = [
+    "BTC", "ETH", "SOL", "Fed rates", "US election",
+    "Ukraine", "China", "AI", "Oil", "Gold",
+    "Recession", "Israel", "Tariffs", "NFL", "Trump"
+  ];
+
+  function initDataInputs() {
+    const qHost = $('inputQuestions');
+    if (qHost) {
+      qHost.innerHTML = POPULAR_QUESTIONS.map(q =>
+        '<button class="input-chip" type="button">' + escapeHtml(q) + '</button>'
+      ).join('');
+      qHost.querySelectorAll('.input-chip').forEach((btn, i) => {
+        btn.addEventListener('click', () => askAgent(POPULAR_QUESTIONS[i]));
+      });
+    }
+    const tHost = $('inputTopics');
+    if (tHost) {
+      tHost.innerHTML = TRENDING_TOPICS.map(t =>
+        '<button class="input-chip" type="button">#' + escapeHtml(t) + '</button>'
+      ).join('');
+      const cnt = $('inputTopicsCount'); if (cnt) cnt.textContent = TRENDING_TOPICS.length;
+      tHost.querySelectorAll('.input-chip').forEach((btn, i) => {
+        btn.addEventListener('click', () => askAgent("What's happening with " + TRENDING_TOPICS[i] + "? Any market implications?"));
+      });
+    }
+    refreshDataInputs();
+  }
+
+  function refreshDataInputs() {
+    // Trending assets (reuse from loadTrendingAssets data if present)
+    const aHost = $('inputAssets');
+    if (aHost) {
+      const cards = document.querySelectorAll('#trendAssets .asset-card');
+      const items = [];
+      cards.forEach(c => {
+        const sym = c.querySelector('.ac-sym'); if (sym) items.push(sym.textContent.trim());
+      });
+      const assets = items.length ? items : ['BTC','ETH','SOL','S&P','GOLD','DXY'];
+      aHost.innerHTML = assets.slice(0, 8).map(a =>
+        '<button class="input-chip" type="button">' + escapeHtml(a) + '</button>'
+      ).join('');
+      const cnt = $('inputAssetsCount'); if (cnt) cnt.textContent = assets.length;
+      aHost.querySelectorAll('.input-chip').forEach((btn, i) => {
+        btn.addEventListener('click', () => askAgent("Give me a full read on " + assets[i] + " — price action, news, and any related Polymarket exposure."));
+      });
+    }
+
+    // Trending markets — from trendingEvents already fetched by loadTrending
+    const mHost = $('inputMarkets');
+    if (mHost && Array.isArray(trendingEvents) && trendingEvents.length) {
+      const top = trendingEvents.slice(0, 8);
+      mHost.innerHTML = top.map((e, i) => {
+        const m0 = (e.markets && e.markets[0]) || {};
+        const prices = parseJsonField(m0.outcomePrices, [null, null]);
+        const yes = prices[0] != null ? (parseFloat(prices[0])*100).toFixed(0) + '¢' : '—';
+        const vol = e.volume24hr ? ('$' + (e.volume24hr>=1e6?(e.volume24hr/1e6).toFixed(1)+'M':(e.volume24hr/1e3).toFixed(0)+'K')) : '';
+        return '<div class="input-row" data-idx="' + i + '">'
+          + escapeHtml((e.title || '').slice(0, 90))
+          + '<div class="meta-line">Y ' + yes + ' · ' + vol + '</div>'
+          + '</div>';
+      }).join('');
+      const cnt = $('inputMarketsCount'); if (cnt) cnt.textContent = trendingEvents.length;
+      mHost.querySelectorAll('.input-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const e = top[parseInt(row.dataset.idx, 10)];
+          if (e) askAgent('Break down this Polymarket event for me: "' + (e.title || '').replace(/"/g,'') + '". Fair value, edge, and what to watch.');
+        });
+      });
+    }
+
+    // Latest headlines — pull from currently-rendered news grid
+    const nHost = $('inputNews');
+    if (nHost) {
+      const cards = document.querySelectorAll('#newsList .news-card');
+      if (cards.length) {
+        const items = [];
+        cards.forEach(c => {
+          const t = c.querySelector('.title');
+          const s = c.querySelector('.meta .src');
+          const href = c.getAttribute('href') || '';
+          if (t) items.push({ title: t.textContent.trim(), src: s ? s.textContent.trim() : '', href });
+        });
+        const top = items.slice(0, 10);
+        nHost.innerHTML = top.map((n, i) =>
+          '<div class="input-row" data-idx="' + i + '">'
+          + escapeHtml(n.title.slice(0, 100))
+          + '<div class="meta-line">' + escapeHtml(n.src) + '</div>'
+          + '</div>'
+        ).join('');
+        const cnt = $('inputNewsCount'); if (cnt) cnt.textContent = items.length;
+        nHost.querySelectorAll('.input-row').forEach(row => {
+          row.addEventListener('click', () => {
+            const n = top[parseInt(row.dataset.idx, 10)];
+            if (n) askAgent('Take this headline and tell me what it means for prediction markets: "' + n.title.replace(/"/g,'') + '"');
+          });
+        });
+      }
+    }
+  }
+
   function initTradingView(symbol) {
     const host = $('tvHost'); if (!host) return;
     const sym = encodeURIComponent(symbol || 'BINANCE:BTCUSDT');
@@ -2921,6 +3085,8 @@
     try { initVoice(); } catch(_) {}
     try { loadTrendingAssets(); } catch(_) {}
     setInterval(() => { try { loadTrendingAssets(); } catch(_) {} }, 5 * 60 * 1000);
+    try { initDataInputs(); } catch(_) {}
+    setInterval(() => { try { refreshDataInputs(); } catch(_) {} }, 5 * 60 * 1000);
     setInterval(() => {
       const panels = document.querySelectorAll('.panel, .kpi');
       if (!panels.length) return;
@@ -3019,7 +3185,7 @@
   }
   function renderStrategies() {
     const box = $('stratList'); if (!box) return;
-    $('stratCount').textContent = STRATS.length;
+    const sc = $('stratCount'); if (sc) sc.textContent = STRATS.length;
     if (!STRATS.length) {
       box.innerHTML = '<div class="empty"><div class="big">NO STRATEGIES</div>Build one on the left to get started.</div>';
       return;
@@ -3846,6 +4012,7 @@
           eHost.innerHTML = '<div class="embed-tiles">' + (tiles || '<div class="empty">No markets.</div>') + '</div>';
           if (eMeta) eMeta.textContent = trendingEvents.length + ' live';
         }
+        try { refreshDataInputs(); } catch(_) {}
       } else {
         await _origLoadTrending.apply(this, arguments);
       }
