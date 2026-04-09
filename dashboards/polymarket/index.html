@@ -351,6 +351,73 @@
   }
   .drawer .drawer-chat .suggest button:hover { color: var(--accent); border-color: var(--accent-dim); }
   @media (max-width: 720px) { .drawer { width: 100vw; } .drawer .body .hero-img { height: 200px; } .drawer .body h3 { font-size: 18px !important; } .drawer .yesno-big .pill .price { font-size: 26px; } }
+
+  /* ---- Drawer trade panel ---- */
+  .drawer .trade-panel {
+    margin: 14px 0 0; padding: 18px 20px;
+    border: 1px solid var(--accent-dim); background: rgba(0,229,255,0.04); border-radius: 3px;
+    position: relative;
+  }
+  .drawer .trade-panel.locked { opacity: .55; pointer-events: none; }
+  .drawer .trade-panel h4 {
+    font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 3px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 14px;
+    text-shadow: 0 0 12px var(--accent-dim);
+  }
+  .drawer .trade-panel h4::before { content: '⚡ '; opacity: .8; }
+  .drawer .trade-panel .lock-msg {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim);
+    letter-spacing: 1px; padding: 16px 0 0; text-align: center;
+  }
+  .drawer .trade-panel .size-row {
+    display: grid; grid-template-columns: 1fr auto auto auto auto; gap: 8px; margin-bottom: 14px;
+    align-items: center;
+  }
+  .drawer .trade-panel .size-row input {
+    background: rgba(4,6,11,0.7); border: 1px solid var(--panel-border); color: var(--text);
+    padding: 10px 12px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+    border-radius: 2px; outline: none; width: 100%;
+  }
+  .drawer .trade-panel .size-row input:focus { border-color: var(--accent); box-shadow: 0 0 10px var(--accent-dim); }
+  .drawer .trade-panel .quick {
+    padding: 8px 10px; font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--panel-border);
+    cursor: pointer; border-radius: 2px; letter-spacing: 1px;
+  }
+  .drawer .trade-panel .quick:hover { color: var(--accent); border-color: var(--accent-dim); }
+  .drawer .trade-panel .buy-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .drawer .trade-panel .buy {
+    padding: 16px; font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 600;
+    letter-spacing: 3px; text-transform: uppercase; cursor: pointer; border-radius: 3px;
+    transition: all .2s ease;
+  }
+  .drawer .trade-panel .buy.yes {
+    color: var(--accent); border: 1px solid var(--accent-dim); background: rgba(0,229,255,0.08);
+    box-shadow: inset 0 0 20px rgba(0,229,255,0.08);
+  }
+  .drawer .trade-panel .buy.yes:hover { background: rgba(0,229,255,0.18); box-shadow: 0 0 20px var(--accent-dim), inset 0 0 30px rgba(0,229,255,0.14); text-shadow: 0 0 14px var(--accent); }
+  .drawer .trade-panel .buy.no {
+    color: var(--red); border: 1px solid rgba(255,56,96,0.32); background: rgba(255,56,96,0.06);
+    box-shadow: inset 0 0 20px rgba(255,56,96,0.06);
+  }
+  .drawer .trade-panel .buy.no:hover { background: rgba(255,56,96,0.14); box-shadow: 0 0 20px rgba(255,56,96,0.25), inset 0 0 30px rgba(255,56,96,0.1); text-shadow: 0 0 14px var(--red); }
+  .drawer .trade-panel .buy .cost { display: block; font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; opacity: .7; margin-top: 4px; font-weight: 400; }
+  .drawer .trade-panel .foot {
+    display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px;
+    border-top: 1px solid rgba(0,229,255,0.12);
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim);
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .drawer .trade-panel .foot .cash { color: var(--accent); }
+  .drawer .trade-panel .connect-cta {
+    display: inline-block; margin-top: 10px; padding: 9px 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent-dim);
+    background: rgba(0,229,255,0.08); cursor: pointer; border-radius: 2px;
+  }
+  .drawer .trade-panel .connect-cta:hover { background: rgba(0,229,255,0.16); box-shadow: 0 0 12px var(--accent-dim); }
   .drawer.open { transform: translateX(0); }
   .drawer .head { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--panel-border); }
   .drawer .head .t { font-family:'JetBrains Mono',monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
@@ -955,23 +1022,47 @@
   .portfolio-wrap { max-width: 1300px; margin: 0 auto; }
   .portfolio-wrap .mini-stats { grid-template-columns: repeat(4, 1fr); }
   .portfolio-wrap .mini-stats .kpi .val { font-size: 26px; }
-  .pos-clean { display: flex; flex-direction: column; gap: 0; }
-  .pos-row {
-    display: grid; grid-template-columns: 44px 1fr 110px 110px 110px; gap: 14px; align-items: center;
-    padding: 14px 16px; border-bottom: 1px solid rgba(0,229,255,0.08);
+  /* ---- Clean positions table ---- */
+  .pos-clean { overflow: hidden; border-radius: 3px; }
+  table.pos-table {
+    width: 100%; border-collapse: collapse; table-layout: fixed;
     font-family: 'JetBrains Mono', monospace; font-size: 11px;
-    transition: background .15s ease;
   }
-  .pos-row:last-child { border-bottom: none; }
-  .pos-row:hover { background: rgba(0,229,255,0.04); }
-  .pos-row img { width: 40px; height: 40px; border-radius: 3px; object-fit: cover; border: 1px solid var(--panel-border); background: var(--bg1); }
-  .pos-row .t { font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); line-height: 1.35; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .pos-row .outc { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
-  .pos-row .v { text-align: right; }
-  .pos-row .v .k { font-size: 8px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; display: block; margin-bottom: 2px; }
-  .pos-row .v .num { font-size: 13px; color: var(--text); }
-  .pos-row .v .num.pos { color: var(--accent); text-shadow: 0 0 10px var(--accent-dim); }
-  .pos-row .v .num.neg { color: var(--red); text-shadow: 0 0 10px rgba(255,56,96,0.35); }
+  table.pos-table thead th {
+    text-align: left; padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 500;
+    color: var(--text-dim); letter-spacing: 1.4px; text-transform: uppercase;
+    border-bottom: 1px solid var(--panel-border); background: rgba(0,229,255,0.03);
+  }
+  table.pos-table thead th.num { text-align: right; }
+  table.pos-table tbody td {
+    padding: 12px 14px; border-bottom: 1px solid rgba(0,229,255,0.06);
+    vertical-align: middle;
+  }
+  table.pos-table tbody tr:last-child td { border-bottom: none; }
+  table.pos-table tbody tr { transition: background .15s ease; }
+  table.pos-table tbody tr:hover { background: rgba(0,229,255,0.04); }
+  table.pos-table td.img-cell { width: 52px; padding-right: 0; }
+  table.pos-table td.img-cell img,
+  table.pos-table td.img-cell .no-img {
+    width: 36px; height: 36px; border-radius: 3px; object-fit: cover;
+    border: 1px solid var(--panel-border); background: var(--bg1); display: block;
+  }
+  table.pos-table td.market { max-width: 0; }
+  table.pos-table td.market .t {
+    font-family: 'Outfit', sans-serif; font-size: 13px; color: var(--text); line-height: 1.35;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  table.pos-table td.market .outc {
+    font-size: 9px; color: var(--text-dim); letter-spacing: 1px;
+    text-transform: uppercase; margin-top: 2px;
+  }
+  table.pos-table td.num {
+    text-align: right; font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: var(--text); white-space: nowrap; width: 110px;
+  }
+  table.pos-table td.num.pos { color: var(--accent); text-shadow: 0 0 10px var(--accent-dim); }
+  table.pos-table td.num.neg { color: var(--red); text-shadow: 0 0 10px rgba(255,56,96,0.35); }
 
   /* ---- MARKETPLACE — hero + network + narrative + news + events ---- */
   .mp-hero {
@@ -1175,6 +1266,11 @@
 
     <div class="status-pill" id="agentPill">
       <span class="dot"></span><span id="agentPillText">MONITORING</span>
+    </div>
+
+    <div class="hstat">
+      <div class="lbl">Cash (USDC)</div>
+      <div class="val" id="hCash">—</div>
     </div>
 
     <div class="hstat">
@@ -2361,6 +2457,7 @@
     initNetwork();
     initQuickPrompts();
     try { renderStrategies(); } catch(_) {}
+    try { refreshCash(); } catch(_) {}
     setInterval(() => {
       const panels = document.querySelectorAll('.panel, .kpi');
       if (!panels.length) return;
@@ -2660,6 +2757,7 @@
       saveTradingCreds(toSave);
       updateTradeBtnState();
       setTcStatus('on', 'CONNECTED · ' + shortAddr(proxy));
+      try { refreshCash(); } catch {}
       if (typeof pushAgentMessageSystem === 'function') pushAgentMessageSystem('Polymarket connected: ' + shortAddr(proxy));
       setTimeout(() => { if (closeCb) closeCb(); }, 900);
     } catch (e) {
@@ -3081,20 +3179,31 @@
     const meta = $('posMeta'); if (meta) meta.textContent = positions.length + ' active';
     if (!positions.length) { box.innerHTML = '<div class="empty"><div class="big">NO WALLET</div>Configure wallet to sync positions.</div>'; return; }
     const sorted = positions.slice().sort((a,b)=>(b.currentValue||0)-(a.currentValue||0));
-    box.innerHTML = sorted.map(p => {
+    const rows = sorted.map(p => {
       const pnl = p.cashPnl || 0;
       const pct = p.percentPnl;
       const cls = pnl >= 0 ? 'pos' : 'neg';
       const img = p.icon || p.image || '';
-      const imgEl = img ? '<img src="' + img + '" onerror="this.style.display=\'none\'">' : '<div></div>';
-      return '<div class="pos-row">'
-        + imgEl
-        + '<div><div class="t">' + escapeHtml(p.title || 'Unknown') + '</div><div class="outc">' + escapeHtml(p.outcome || '—') + ' · ' + (p.size||0).toFixed(2) + ' @ ' + (p.avgPrice||0).toFixed(3) + '</div></div>'
-        + '<div class="v"><span class="k">Value</span><span class="num">' + fmtUsd(p.currentValue) + '</span></div>'
-        + '<div class="v"><span class="k">P&amp;L</span><span class="num ' + cls + '">' + fmtUsd(pnl, true) + '</span></div>'
-        + '<div class="v"><span class="k">ROI</span><span class="num ' + cls + '">' + fmtPct(pct) + '</span></div>'
-        + '</div>';
+      const imgEl = img ? '<img src="' + img + '" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'no-img\'}))">' : '<div class="no-img"></div>';
+      const curPrice = (p.curPrice != null ? (p.curPrice*100).toFixed(0) + '¢' : '—');
+      return '<tr>'
+        + '<td class="img-cell">' + imgEl + '</td>'
+        + '<td class="market"><div class="t">' + escapeHtml(p.title || 'Unknown') + '</div><div class="outc">' + escapeHtml(p.outcome || '—') + ' · ' + (p.size||0).toFixed(2) + ' @ ' + (p.avgPrice||0).toFixed(3) + '</div></td>'
+        + '<td class="num">' + curPrice + '</td>'
+        + '<td class="num">' + fmtUsd(p.currentValue) + '</td>'
+        + '<td class="num ' + cls + '">' + fmtUsd(pnl, true) + '</td>'
+        + '<td class="num ' + cls + '">' + fmtPct(pct) + '</td>'
+        + '</tr>';
     }).join('');
+    box.innerHTML =
+      '<table class="pos-table">'
+      + '<thead><tr>'
+      +   '<th></th><th>Market</th>'
+      +   '<th class="num">Price</th><th class="num">Value</th>'
+      +   '<th class="num">P&amp;L</th><th class="num">ROI</th>'
+      + '</tr></thead>'
+      + '<tbody>' + rows + '</tbody>'
+      + '</table>';
     } catch (e) { console.warn('renderPositions', e); }
   };
 
@@ -3335,6 +3444,7 @@
       +   '<div class="stat"><div class="k">Mid</div><div class="v" id="drMid">—</div></div>'
       + '</div>'
       + '<a class="poly-link" href="' + polyUrl + '" target="_blank" rel="noopener">View on Polymarket</a>'
+      + buildTradePanelHtml(market, outcomes, prices)
       + '<div class="desc">' + escapeHtml(desc) + '</div>'
       + '<div class="drawer-chat">'
       +   '<label>Ask Oracle about this market</label>'
@@ -3384,7 +3494,138 @@
         if (sp && $('drSpread')) $('drSpread').textContent = parseFloat(sp.spread).toFixed(3);
       } catch(_) {}
     }
+    wireTradePanel(market, outcomes, prices, tokenIds);
   };
+
+  // ================================================================
+  // TRADE PANEL — build HTML, wire buttons, dispatch via agent
+  // ================================================================
+  function buildTradePanelHtml(market, outcomes, prices) {
+    const connected = !!(window.__POLYMARKET_CREDS__ && window.__POLYMARKET_CREDS__.apiKey);
+    const yesLbl = (outcomes[0] || 'YES').toUpperCase();
+    const noLbl  = (outcomes[1] || 'NO').toUpperCase();
+    if (!connected) {
+      return '<div class="trade-panel">'
+        + '<h4>Trade this market</h4>'
+        + '<div class="lock-msg">Connect your Polymarket wallet to place orders from the dashboard.<br><button type="button" class="connect-cta" id="drConnectCta">Connect Polymarket</button></div>'
+        + '</div>';
+    }
+    const cashDisplay = CASH_USDC != null ? '$' + CASH_USDC.toFixed(2) : '—';
+    return '<div class="trade-panel" id="drTradePanel">'
+      + '<h4>Trade this market</h4>'
+      + '<div class="size-row">'
+      +   '<input type="number" id="drSize" placeholder="Size (shares)" min="5" step="1" value="10" />'
+      +   '<button type="button" class="quick" data-q="10">10</button>'
+      +   '<button type="button" class="quick" data-q="25">25</button>'
+      +   '<button type="button" class="quick" data-q="50">50</button>'
+      +   '<button type="button" class="quick" data-q="100">100</button>'
+      + '</div>'
+      + '<div class="buy-row">'
+      +   '<button type="button" class="buy yes" data-side="yes">BUY ' + escapeHtml(yesLbl) + '<span class="cost" id="drYesCost">—</span></button>'
+      +   '<button type="button" class="buy no" data-side="no">BUY ' + escapeHtml(noLbl) + '<span class="cost" id="drNoCost">—</span></button>'
+      + '</div>'
+      + '<div class="foot"><span>Available</span><span class="cash">' + cashDisplay + '</span></div>'
+      + '</div>';
+  }
+  function wireTradePanel(market, outcomes, prices, tokenIds) {
+    const cta = document.getElementById('drConnectCta');
+    if (cta) {
+      cta.addEventListener('click', () => { closeDrawer(); setTimeout(() => { const b = $('tradeBtn'); if (b) b.click(); }, 200); });
+    }
+    const panel = document.getElementById('drTradePanel');
+    if (!panel) return;
+    const sizeInput = document.getElementById('drSize');
+    const updateCost = () => {
+      const sz = parseFloat(sizeInput.value) || 0;
+      const pYes = parseFloat(prices[0]) || 0;
+      const pNo  = parseFloat(prices[1]) || 0;
+      const yc = document.getElementById('drYesCost'); if (yc) yc.textContent = '≈ $' + (sz * pYes).toFixed(2);
+      const nc = document.getElementById('drNoCost');  if (nc) nc.textContent = '≈ $' + (sz * pNo).toFixed(2);
+    };
+    updateCost();
+    sizeInput.addEventListener('input', updateCost);
+    panel.querySelectorAll('.quick').forEach(b => b.addEventListener('click', () => { sizeInput.value = b.dataset.q; updateCost(); }));
+    panel.querySelectorAll('.buy').forEach(b => {
+      b.addEventListener('click', () => {
+        const side = b.dataset.side;
+        const sz = parseFloat(sizeInput.value) || 0;
+        if (sz < 5) { alert('Minimum order size is 5 shares.'); return; }
+        const idx = side === 'yes' ? 0 : 1;
+        const price = parseFloat(prices[idx]) || 0;
+        const cost = sz * price;
+        const outLabel = (outcomes[idx] || (side === 'yes' ? 'YES' : 'NO')).toUpperCase();
+        const title = market.question || '';
+        const tokenId = (tokenIds && tokenIds[idx]) || '';
+        const ok = confirm('Place order:\n\n' + outLabel + ' × ' + sz + ' shares\non "' + title.slice(0, 80) + '"\n@ ' + (price*100).toFixed(1) + '¢\n\nEstimated cost: $' + cost.toFixed(2) + '\n\nConfirm?');
+        if (!ok) return;
+        submitOrderViaAgent({ side: 'BUY', outcome: outLabel, size: sz, price, tokenId, marketSlug: market.slug || '', title });
+      });
+    });
+  }
+  function submitOrderViaAgent(order) {
+    // The dashboard does NOT sign orders itself. It forwards the intent to the agent
+    // via the chat channel; the agent picks up creds from window.getTradingCreds()
+    // (or the server-side mirror) and does the L2 HMAC + EIP-712 order signing.
+    const msg = 'TRADE_INTENT: ' + order.side + ' ' + order.size + ' ' + order.outcome
+      + ' on "' + (order.title || '').slice(0, 80) + '"'
+      + ' @ ' + (order.price).toFixed(4)
+      + (order.tokenId ? ' token=' + order.tokenId : '')
+      + (order.marketSlug ? ' slug=' + order.marketSlug : '')
+      + ' — please confirm and execute via CLOB.';
+    closeDrawer();
+    if (typeof setPage === 'function') setPage('command');
+    setTimeout(() => {
+      const inp = $('chatInput'); if (inp) inp.value = msg;
+      if (typeof sendChat === 'function') sendChat();
+      else if ($('chatSend')) $('chatSend').click();
+    }, 300);
+  }
+
+  // ================================================================
+  // USDC BALANCE — on-chain via Polygon RPC eth_call (no CORS for JSON-RPC)
+  // Mirrors polymarket/balance.go
+  // ================================================================
+  let CASH_USDC = null;
+  const USDC_E_POLYGON = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174';
+  const POLY_RPCS = [
+    'https://polygon-rpc.com',
+    'https://polygon.llamarpc.com',
+    'https://1rpc.io/matic',
+    'https://polygon.drpc.org'
+  ];
+  async function fetchUsdcBalance(addr) {
+    if (!addr || !/^0x[a-fA-F0-9]{40}$/.test(addr)) return null;
+    const padded = '000000000000000000000000' + addr.replace(/^0x/, '').toLowerCase();
+    const data = '0x70a08231' + padded;
+    const body = { jsonrpc: '2.0', id: 1, method: 'eth_call', params: [{ to: USDC_E_POLYGON, data }, 'latest'] };
+    for (const rpc of POLY_RPCS) {
+      try {
+        const r = await fetch(rpc, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+        if (!r.ok) continue;
+        const j = await r.json();
+        if (!j.result) continue;
+        const hex = j.result.replace(/^0x/, '');
+        if (!hex) continue;
+        const raw = BigInt('0x' + hex);
+        return Number(raw) / 1e6;
+      } catch {}
+    }
+    return null;
+  }
+  async function refreshCash() {
+    const c = window.__POLYMARKET_CREDS__;
+    if (!c || !(c.proxy || c.signer)) { $('hCash').textContent = '—'; return; }
+    const addr = c.proxy || c.signer;
+    const bal = await fetchUsdcBalance(addr);
+    if (bal != null) {
+      CASH_USDC = bal;
+      const el = $('hCash'); if (el) el.textContent = '$' + bal.toFixed(2);
+    } else {
+      $('hCash').textContent = 'ERR';
+    }
+  }
+  window.refreshCash = refreshCash;
+  setInterval(() => { try { refreshCash(); } catch {} }, 45000);
 
   boot();
 </script>
