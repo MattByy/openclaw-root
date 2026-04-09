@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/globe.gl@2.45.3/dist/globe.gl.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.2/ethers.umd.min.js" defer></script>
 <style>
   :root {
     --accent: #00e5ff;
@@ -286,11 +287,70 @@
   .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 50; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
   .drawer-overlay.open { opacity: 1; pointer-events: auto; }
   .drawer {
-    position: fixed; top: 0; right: 0; bottom: 0; width: 480px; max-width: 100vw;
+    position: fixed; top: 0; right: 0; bottom: 0; width: 680px; max-width: 100vw;
     background: var(--panel-solid); border-left: 1px solid var(--accent-dim); z-index: 51;
-    transform: translateX(100%); transition: transform .3s ease; overflow-y: auto;
-    box-shadow: -12px 0 40px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,229,255,0.04);
+    transform: translateX(100%); transition: transform .35s ease; overflow-y: auto;
+    box-shadow: -16px 0 60px rgba(0,0,0,0.6), inset 0 0 60px rgba(0,229,255,0.05);
   }
+  .drawer .body .hero-img {
+    width: 100%; height: 260px; background-size: cover; background-position: center;
+    background-color: var(--bg1); border: 1px solid var(--panel-border); border-radius: 3px;
+    margin-bottom: 18px; position: relative; overflow: hidden;
+  }
+  .drawer .body .hero-img::after {
+    content:''; position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(6,9,15,0.95));
+  }
+  .drawer .body h3 { font-size: 22px !important; line-height: 1.3 !important; margin-bottom: 16px !important; font-family: 'Outfit', sans-serif; font-weight: 500; }
+  .drawer .yesno-big { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .drawer .yesno-big .pill {
+    border: 1px solid; border-radius: 3px; padding: 18px 20px; text-align: center;
+    font-family: 'Orbitron', sans-serif;
+  }
+  .drawer .yesno-big .pill.yes { color: var(--accent); border-color: var(--accent-dim); background: rgba(0,229,255,0.08); box-shadow: inset 0 0 30px rgba(0,229,255,0.08); }
+  .drawer .yesno-big .pill.no  { color: var(--red); border-color: rgba(255,56,96,0.32); background: rgba(255,56,96,0.06); box-shadow: inset 0 0 30px rgba(255,56,96,0.06); }
+  .drawer .yesno-big .pill .lbl { font-size: 11px; letter-spacing: 3px; opacity: .8; }
+  .drawer .yesno-big .pill .price { display: block; font-size: 32px; font-weight: 700; margin-top: 6px; letter-spacing: 2px; text-shadow: 0 0 20px currentColor; }
+  .drawer .body .desc { font-size: 13px !important; line-height: 1.65 !important; max-height: none !important; color: var(--text) !important; opacity: .85; }
+  .drawer .poly-link {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 14px; margin: 14px 0 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; text-decoration: none;
+    color: var(--accent); border: 1px solid var(--accent-dim); background: rgba(0,229,255,0.05);
+    border-radius: 3px; transition: all .2s ease;
+  }
+  .drawer .poly-link:hover { background: rgba(0,229,255,0.14); box-shadow: 0 0 18px var(--accent-dim); }
+  .drawer .poly-link::after { content: '↗'; font-size: 14px; }
+  .drawer .drawer-chat {
+    margin-top: 14px; padding: 16px; border: 1px solid var(--panel-border);
+    border-radius: 3px; background: rgba(4,6,11,0.5);
+  }
+  .drawer .drawer-chat label {
+    display: block; font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 3px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 10px; text-shadow: 0 0 10px var(--accent-dim);
+  }
+  .drawer .drawer-chat label::before { content: '◆ '; opacity: .7; }
+  .drawer .drawer-chat .row { display: flex; gap: 8px; }
+  .drawer .drawer-chat input {
+    flex: 1; background: rgba(4,6,11,0.7); border: 1px solid var(--panel-border); color: var(--text);
+    padding: 11px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; border-radius: 2px; outline: none;
+  }
+  .drawer .drawer-chat input:focus { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-dim); }
+  .drawer .drawer-chat button {
+    background: var(--accent-fade); border: 1px solid var(--accent-dim); color: var(--accent);
+    padding: 0 20px; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 2px; text-transform: uppercase; cursor: pointer; border-radius: 2px;
+  }
+  .drawer .drawer-chat button:hover { background: rgba(0,229,255,0.15); box-shadow: 0 0 12px var(--accent-dim); }
+  .drawer .drawer-chat .suggest {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;
+  }
+  .drawer .drawer-chat .suggest button {
+    padding: 6px 10px; font-size: 9px; background: transparent; color: var(--text-dim); border-color: var(--panel-border);
+  }
+  .drawer .drawer-chat .suggest button:hover { color: var(--accent); border-color: var(--accent-dim); }
+  @media (max-width: 720px) { .drawer { width: 100vw; } .drawer .body .hero-img { height: 200px; } .drawer .body h3 { font-size: 18px !important; } .drawer .yesno-big .pill .price { font-size: 26px; } }
   .drawer.open { transform: translateX(0); }
   .drawer .head { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; border-bottom: 1px solid var(--panel-border); }
   .drawer .head .t { font-family:'JetBrains Mono',monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; }
@@ -847,10 +907,19 @@
   /* ============   REDESIGN v3 — MINIMAL + VISUAL      ========= */
   /* ============================================================ */
 
-  /* ---- COMMAND (just a chat) ---- */
+  /* ---- COMMAND (chat + strategies) ---- */
   .command-wrap {
     display: grid; grid-template-columns: 1fr; gap: 16px; max-width: 1200px; margin: 0 auto;
   }
+  .command-wrap.cmd-split {
+    grid-template-columns: 340px 1fr;
+    max-width: 1500px;
+  }
+  .cmd-left, .cmd-right { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  @media (max-width: 1000px) { .command-wrap.cmd-split { grid-template-columns: 1fr; } }
+  .cmd-left .agent-hero { padding: 16px 20px; }
+  .cmd-left .ai-orb { width: 48px; height: 48px; }
+  .cmd-left .agent-hero .nm { font-size: 15px; letter-spacing: 3px; }
   .agent-hero { padding: 22px 26px; }
   .agent-hero .agent-ident { display: flex; align-items: center; gap: 18px; }
   .ai-orb {
@@ -920,7 +989,8 @@
   }
   .network-panel::before { top:-1px; left:-1px; border-right:none; border-bottom:none; }
   .network-panel::after { bottom:-1px; right:-1px; border-left:none; border-top:none; }
-  #netCanvas { width: 100%; height: 100%; display: block; position: absolute; inset: 0; }
+  #netCanvas, #mnGlobeContainer { width: 100%; height: 100%; display: block; position: absolute; inset: 0; }
+  #mnGlobeContainer canvas { display: block; }
   .network-title {
     position: absolute; top: 16px; left: 20px; z-index: 3;
     font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 4px;
@@ -1131,45 +1201,58 @@
   </nav>
 
   <!-- ================================================================ -->
-  <!-- ============       PAGE 1 — COMMAND (pure chat)       ========= -->
+  <!-- ============  PAGE 1 — COMMAND (chat + strategies)    ========= -->
   <!-- ================================================================ -->
   <section class="page active" id="pageCommand">
-    <div class="command-wrap">
+    <div class="command-wrap cmd-split">
 
-      <div class="panel agent-hero">
-        <span class="br1"></span><span class="br2"></span>
-        <div class="agent-ident">
-          <div class="ai-orb"></div>
-          <div style="flex:1;">
-            <div class="nm">ORACLE // STRATEGIST</div>
-            <div class="st" id="asStrat">Ask me to analyze markets, find edge, or propose a strategy.</div>
+      <div class="cmd-left">
+        <div class="panel agent-hero">
+          <span class="br1"></span><span class="br2"></span>
+          <div class="agent-ident">
+            <div class="ai-orb"></div>
+            <div style="flex:1;">
+              <div class="nm">ORACLE</div>
+              <div class="st" id="asStrat">Strategist online</div>
+            </div>
           </div>
         </div>
-        <div class="quick-prompts">
-          <button type="button" data-q="Suggest a strategy for the current prediction markets.">⚡ Suggest a strategy</button>
-          <button type="button" data-q="Analyze my open positions and flag risks.">◎ Analyze portfolio</button>
-          <button type="button" data-q="Where is there edge in the markets right now?">◈ Find edge</button>
-          <button type="button" data-q="Explain the narrative behind the top trending market.">✎ Explain narrative</button>
-          <button type="button" data-q="What news today should move prediction markets?">⚐ News impact</button>
+
+        <div class="panel">
+          <span class="br1"></span><span class="br2"></span>
+          <h2>STRATEGIES <span class="meta" id="stratCount">0</span></h2>
+          <div class="strat-list" id="stratList">
+            <div class="empty"><div class="big">NO STRATEGIES</div>Ask the agent to create one.</div>
+          </div>
         </div>
       </div>
 
-      <div class="panel chat-panel big-chat">
-        <span class="br1"></span><span class="br2"></span>
-        <h2>DIALOGUE <span class="meta" id="chatConn" style="display:flex;"><span class="conn off"><span class="dot"></span><span id="chatConnText">OFFLINE</span></span></span></h2>
-        <div class="chat-log" id="chatLog"></div>
-        <div class="chat-input-row">
-          <input type="text" id="chatInput" placeholder="Ask the agent anything…" disabled />
-          <button id="chatSend" disabled>SEND</button>
+      <div class="cmd-right">
+        <div class="panel chat-panel big-chat">
+          <span class="br1"></span><span class="br2"></span>
+          <h2>DIALOGUE <span class="meta" id="chatConn" style="display:flex;"><span class="conn off"><span class="dot"></span><span id="chatConnText">OFFLINE</span></span></span></h2>
+          <div class="quick-prompts" style="margin-bottom:14px; margin-top:0;">
+            <button type="button" data-q="Suggest a strategy for the current prediction markets.">⚡ Suggest strategy</button>
+            <button type="button" data-q="Analyze my open positions and flag risks.">◎ Analyze portfolio</button>
+            <button type="button" data-q="Where is there edge in the markets right now?">◈ Find edge</button>
+            <button type="button" data-q="Explain the narrative behind the top trending market.">✎ Narrative</button>
+            <button type="button" data-q="What news today should move prediction markets?">⚐ News impact</button>
+          </div>
+          <div class="chat-log" id="chatLog"></div>
+          <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Ask the agent anything…" disabled />
+            <button id="chatSend" disabled>SEND</button>
+          </div>
+          <div class="slash-hint">/refresh · /markets · /news · /positions</div>
         </div>
-        <div class="slash-hint">/refresh · /markets · /news · /positions</div>
       </div>
 
     </div>
 
-    <!-- hidden fields kept for updateAgentStatus() compatibility -->
+    <!-- hidden placeholders so render functions don't throw when Portfolio page is not mounted -->
     <div style="display:none;">
       <span id="asState"></span><span id="asLast"></span><span id="asLastT"></span><span id="asNext"></span>
+      <span id="kTr"></span><span id="kSt"></span><span id="kStSub"></span>
       <div id="liveFeed"></div><span id="feedMeta"></span>
     </div>
   </section>
@@ -1227,9 +1310,8 @@
     <!-- HERO: neural-net network + narrative panel -->
     <div class="mp-hero">
       <div class="panel network-panel">
-        <div class="network-title">MARKET NETWORK<span class="sub">Category flows · 24h</span></div>
-        <canvas id="netCanvas"></canvas>
-        <div class="network-legend" id="netLegend"></div>
+        <div class="network-title">GLOBAL MARKETS<span class="sub">Live prediction layer</span></div>
+        <div id="mnGlobeContainer"></div>
       </div>
       <div class="panel narrative-panel">
         <span class="br1"></span><span class="br2"></span>
@@ -1298,35 +1380,28 @@
 
 </div>
 
-<!-- ============ TRADING CREDENTIALS MODAL ============ -->
+<!-- ============ POLYMARKET CONNECT MODAL ============ -->
 <div class="modal-overlay" id="tradeModal">
-  <div class="modal" style="width:520px;">
-    <h3>TRADING // CONNECT</h3>
-    <p class="lead">Paste your Polymarket trading credentials. The agent will use them to place orders on your behalf.</p>
+  <div class="modal" style="width:560px;">
+    <h3>CONNECT // POLYMARKET</h3>
+    <p class="lead">Enter your Polygon private key. We'll sign an EIP-712 handshake, fetch your proxy wallet, and derive your CLOB API credentials automatically.</p>
 
     <div class="trade-warn">
-      <b>⚠ SECURITY:</b> Credentials are stored in your browser's localStorage. Only use this on trusted devices. Your private keys are NEVER requested here — only the API credentials that Polymarket generates for you.
+      <b>⚠ HIGH RISK:</b> Your private key controls ALL funds in your wallet. It is stored <b>only in your browser's localStorage</b> and never transmitted to any server (except Polymarket's own clob.polymarket.com, for EIP-712 auth). Use a <b>burner wallet</b> dedicated to Polymarket trading. Never paste your main wallet's key.
     </div>
 
-    <label>Proxy Wallet Address <span style="color:var(--text-mute);">(from Polymarket profile page)</span></label>
+    <label>Private Key (hex, with or without 0x)</label>
+    <input type="password" id="tcPrivKey" placeholder="0x..." autocomplete="new-password" />
+
+    <label>Proxy Wallet Address <span style="color:var(--text-mute);">(optional — auto-fetched from Polymarket if blank)</span></label>
     <input type="text" id="tcProxy" placeholder="0x..." />
 
-    <label>Signer Address</label>
-    <input type="text" id="tcSigner" placeholder="0x..." />
-
-    <label>API Key</label>
-    <input type="text" id="tcApiKey" placeholder="poly-..." />
-
-    <label>API Secret <span style="color:var(--text-mute);">(optional — auto-derived if blank)</span></label>
-    <input type="text" id="tcApiSecret" placeholder="base64..." />
-
-    <label>API Passphrase <span style="color:var(--text-mute);">(optional — auto-derived if blank)</span></label>
-    <input type="text" id="tcApiPass" placeholder="passphrase" />
+    <div id="tcStatus" class="trade-status off" style="margin-top:14px; display:none;"><span class="dot"></span><span id="tcStatusText">—</span></div>
 
     <div class="btns">
-      <button class="ghost" id="tcClear">Clear</button>
+      <button class="ghost" id="tcClear">Disconnect</button>
       <button class="ghost" id="tcCancel">Cancel</button>
-      <button class="primary" id="tcSave">Save &amp; Connect</button>
+      <button class="primary" id="tcConnect">Connect</button>
     </div>
   </div>
 </div>
@@ -2064,16 +2139,32 @@
       return;
     }
     // Session message / event
-    // --- Streaming agent events (event: "agent", payload.stream: "assistant"|"user"|...)
-    if (frame.type === 'event' && frame.event === 'agent') {
+    // --- Streaming events (event: "agent" or "chat")
+    if (frame.type === 'event' && (frame.event === 'agent' || frame.event === 'chat')) {
       const p = frame.payload || {};
-      const stream = p.stream || '';
-      const runId = p.runId || '';
       const data = p.data || {};
+      const stream = p.stream || data.stream || '';
+      const runId = String(p.runId || data.runId || '');
+      const state = String(p.state || data.state || '');
       const role = (stream === 'user') ? 'user' : 'agent';
-      // Full text snapshot OR incremental delta
-      const fullText = data.text || '';
-      const delta = data.delta || '';
+      // Thinking / start states: just ensure the typing indicator persists
+      if (state === 'thinking' || state === 'start' || state === 'pending') {
+        try {
+          const existing = chatLog.querySelector('.bubble.agent.typing');
+          if (!existing) {
+            const typing = document.createElement('div');
+            typing.className = 'bubble agent typing';
+            typing.innerHTML = '<i></i><i></i><i></i>';
+            chatLog.appendChild(typing);
+            chatLog.scrollTop = chatLog.scrollHeight;
+          }
+        } catch {}
+        return;
+      }
+      // Pull text from whatever shape the frame uses
+      const pick = (v) => (typeof v === 'string' ? v : '');
+      const fullText = pick(data.text) || pick(data.content) || pick(data.message) || pick(p.text) || pick(p.content) || pick(p.message);
+      const delta    = pick(data.delta) || pick(data.chunk) || pick(p.delta) || pick(p.chunk);
       if (fullText || delta) {
         upsertStreamingBubble(runId, role, fullText, delta);
       }
@@ -2107,9 +2198,14 @@
       chatLog.appendChild(el);
       entry = _streamBubbles[runId] = { el, text: '', role };
     }
-    // Prefer full snapshot; else append delta
-    if (fullText) entry.text = fullText;
-    else if (delta) entry.text += delta;
+    // Prefer full snapshot; else append delta. Coerce hard to avoid [object Object].
+    const asStr = (v) => {
+      if (v == null) return '';
+      if (typeof v === 'string') return v;
+      try { return typeof v === 'object' ? JSON.stringify(v) : String(v); } catch { return ''; }
+    };
+    if (fullText) entry.text = asStr(fullText);
+    else if (delta) entry.text += asStr(delta);
     // Render — strip clawdash control blocks from the VIEW but execute them
     const cleaned = processClawdashBlocks(entry.text);
     entry.el.textContent = cleaned;
@@ -2264,6 +2360,7 @@
     initNews();
     initNetwork();
     initQuickPrompts();
+    try { renderStrategies(); } catch(_) {}
     setInterval(() => {
       const panels = document.querySelectorAll('.panel, .kpi');
       if (!panels.length) return;
@@ -2433,11 +2530,10 @@
     const modal = $('tradeModal');
     const open = () => {
       const c = loadTradingCreds() || {};
+      // never pre-fill the private key — security. Only fill proxy.
+      $('tcPrivKey').value = '';
       $('tcProxy').value = c.proxy || '';
-      $('tcSigner').value = c.signer || '';
-      $('tcApiKey').value = c.apiKey || '';
-      $('tcApiSecret').value = c.apiSecret || '';
-      $('tcApiPass').value = c.apiPass || '';
+      setTcStatus(c.apiKey ? 'on' : 'off', c.apiKey ? ('CONNECTED · ' + shortAddr(c.proxy || c.signer || '')) : 'NOT CONNECTED');
       modal.classList.add('open');
     };
     const close = () => modal.classList.remove('open');
@@ -2446,35 +2542,130 @@
     $('tcClear').addEventListener('click', () => {
       try { localStorage.removeItem(TC_KEY); } catch {}
       window.__POLYMARKET_CREDS__ = null;
-      ['tcProxy','tcSigner','tcApiKey','tcApiSecret','tcApiPass'].forEach(id => { $(id).value = ''; });
+      $('tcPrivKey').value = ''; $('tcProxy').value = '';
+      setTcStatus('off', 'DISCONNECTED');
       updateTradeBtnState();
-      pushFeed('Trading credentials cleared', 'loss');
+      if (typeof pushAgentMessageSystem === 'function') pushAgentMessageSystem('Polymarket disconnected.');
     });
-    $('tcSave').addEventListener('click', () => {
-      const c = {
-        proxy: $('tcProxy').value.trim(),
-        signer: $('tcSigner').value.trim(),
-        apiKey: $('tcApiKey').value.trim(),
-        apiSecret: $('tcApiSecret').value.trim(),
-        apiPass: $('tcApiPass').value.trim(),
-        savedAt: Date.now()
-      };
-      if (!c.proxy || !c.apiKey) { alert('Proxy wallet and API key are required.'); return; }
-      saveTradingCreds(c);
-      updateTradeBtnState();
-      close();
-      pushFeed('Trading credentials saved — agent can now place orders', 'win');
-      if (typeof pushAgentMessageSystem === 'function') pushAgentMessageSystem('Trading credentials updated.');
-    });
+    $('tcConnect').addEventListener('click', () => connectPolymarket(close));
     modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
     updateTradeBtnState();
+  }
+  function setTcStatus(state, text) {
+    const el = $('tcStatus'); if (!el) return;
+    el.style.display = 'inline-flex';
+    el.className = 'trade-status ' + (state || 'off');
+    const t = $('tcStatusText'); if (t) t.textContent = text || '';
   }
   function updateTradeBtnState() {
     const btn = $('tradeBtn'); if (!btn) return;
     const has = !!(window.__POLYMARKET_CREDS__ && window.__POLYMARKET_CREDS__.apiKey);
     btn.classList.toggle('off', !has);
-    btn.title = has ? 'Trading connected ✓' : 'Connect trading credentials';
-    btn.innerHTML = has ? '⚡' : '⚡';
+    btn.title = has ? 'Polymarket connected ✓' : 'Connect to Polymarket';
+  }
+
+  // ================================================================
+  // POLYMARKET CONNECT — ethers EIP-712 → /auth/api-key → save creds
+  // Mirrors connection.md flow (py_clob_client / go polysnipe).
+  // ================================================================
+  async function connectPolymarket(closeCb) {
+    const pk = $('tcPrivKey').value.trim();
+    const proxyOverride = $('tcProxy').value.trim();
+    if (!pk || !/^(0x)?[0-9a-fA-F]{64}$/.test(pk)) {
+      setTcStatus('off', 'INVALID PRIVATE KEY');
+      return;
+    }
+    if (typeof ethers === 'undefined' || !ethers.Wallet) {
+      setTcStatus('off', 'ETHERS.JS NOT LOADED');
+      return;
+    }
+    try {
+      setTcStatus('off', 'DERIVING EOA…');
+      const hex = pk.startsWith('0x') ? pk : '0x' + pk;
+      const wallet = new ethers.Wallet(hex);
+      const eoa = wallet.address;
+
+      // 1. Resolve proxy wallet via gamma-api (unless user overrode it)
+      let proxy = proxyOverride;
+      if (!proxy) {
+        setTcStatus('off', 'FETCHING PROXY WALLET…');
+        try {
+          const r = await fetch('https://gamma-api.polymarket.com/public-profile?address=' + eoa);
+          if (r.ok) {
+            const prof = await r.json();
+            proxy = prof.proxyWallet || prof.proxy_wallet || '';
+          }
+        } catch {}
+        if (!proxy) proxy = eoa; // fall back to EOA if no proxy registered
+      }
+
+      // 2. Build EIP-712 ClobAuth message and sign with EOA key
+      setTcStatus('off', 'SIGNING EIP-712…');
+      const timestamp = Math.floor(Date.now() / 1000).toString();
+      const domain = { name: 'ClobAuthDomain', version: '1', chainId: 137 };
+      const types = {
+        ClobAuth: [
+          { name: 'address',   type: 'address' },
+          { name: 'timestamp', type: 'string'  },
+          { name: 'nonce',     type: 'uint256' },
+          { name: 'message',   type: 'string'  }
+        ]
+      };
+      const value = {
+        address: eoa,
+        timestamp,
+        nonce: 0,
+        message: 'This message attests that I control the given wallet'
+      };
+      const signature = await wallet.signTypedData(domain, types, value);
+
+      // 3. POST /auth/api-key (fallback to GET /auth/derive-api-key)
+      const l1Headers = {
+        'POLY_ADDRESS': eoa,
+        'POLY_SIGNATURE': signature,
+        'POLY_TIMESTAMP': timestamp,
+        'POLY_NONCE': '0'
+      };
+      setTcStatus('off', 'CREATING API KEY…');
+      let creds = null;
+      try {
+        const r = await fetch('https://clob.polymarket.com/auth/api-key', { method: 'POST', headers: l1Headers });
+        if (r.ok) creds = await r.json();
+      } catch {}
+      if (!creds) {
+        setTcStatus('off', 'DERIVING EXISTING KEY…');
+        try {
+          const r = await fetch('https://clob.polymarket.com/auth/derive-api-key', { method: 'GET', headers: l1Headers });
+          if (r.ok) creds = await r.json();
+        } catch {}
+      }
+      if (!creds || !(creds.apiKey || creds.api_key)) {
+        setTcStatus('off', 'CLOB REJECTED — CHECK CORS/KEY');
+        return;
+      }
+      const apiKey = creds.apiKey || creds.api_key;
+      const apiSecret = creds.secret;
+      const apiPass = creds.passphrase;
+
+      // 4. Persist
+      const toSave = {
+        privKey: hex,     // stored locally only; agent uses it server-side
+        signer: eoa,
+        proxy: proxy,
+        funder: proxy,
+        sigType: 1,
+        apiKey, apiSecret, apiPass,
+        savedAt: Date.now()
+      };
+      saveTradingCreds(toSave);
+      updateTradeBtnState();
+      setTcStatus('on', 'CONNECTED · ' + shortAddr(proxy));
+      if (typeof pushAgentMessageSystem === 'function') pushAgentMessageSystem('Polymarket connected: ' + shortAddr(proxy));
+      setTimeout(() => { if (closeCb) closeCb(); }, 900);
+    } catch (e) {
+      console.warn('connectPolymarket failed', e);
+      setTcStatus('off', 'ERROR: ' + ((e && e.message) || 'unknown'));
+    }
   }
 
   // ================================================================
@@ -2784,159 +2975,46 @@
   }
 
   // ================================================================
-  // NEURAL NETWORK VISUALIZATION (marketplace hero)
+  // MARKETPLACE GLOBE — spinning Earth via globe.gl
   // ================================================================
-  let NET_CTX = null, NET_NODES = [], NET_EDGES = [], NET_T = 0;
-  const NET_CATEGORIES = [
-    { k: 'politics', label: 'POLITICS', color: '#00e5ff' },
-    { k: 'crypto',   label: 'CRYPTO',   color: '#ffc048' },
-    { k: 'sports',   label: 'SPORTS',   color: '#7df9ff' },
-    { k: 'culture',  label: 'CULTURE',  color: '#f5d76e' },
-    { k: 'geopol',   label: 'GEOPOL',   color: '#ff6b87' },
-    { k: 'tech',     label: 'TECH',     color: '#00ffa8' },
-    { k: 'econ',     label: 'ECON',     color: '#a78bfa' },
-  ];
+  let MP_GLOBE = null;
   function initNetwork() {
-    const c = $('netCanvas'); if (!c) return;
-    NET_CTX = c.getContext('2d');
-    const resize = () => {
-      const rect = c.parentElement.getBoundingClientRect();
-      c.width = rect.width * 2; c.height = rect.height * 2;
-      c.style.width = rect.width + 'px'; c.style.height = rect.height + 'px';
-      NET_CTX.setTransform(2, 0, 0, 2, 0, 0);
-    };
-    resize();
-    window.addEventListener('resize', resize);
-    buildNetNodes();
-    // Render legend
-    const leg = $('netLegend');
-    if (leg) {
-      leg.innerHTML = NET_CATEGORIES.map(cat =>
-        '<span><span class="d" style="background:' + cat.color + '; color:' + cat.color + '"></span>' + cat.label + '</span>'
-      ).join('');
-    }
-    drawNetwork();
-  }
-  function buildNetNodes() {
-    NET_NODES = [];
-    NET_EDGES = [];
-    // Category hubs arranged in a circle, plus child nodes around each
-    const W = NET_CTX.canvas.width / 2, H = NET_CTX.canvas.height / 2;
-    const cx = W/2, cy = H/2, hubR = Math.min(W,H) * 0.28;
-    NET_CATEGORIES.forEach((cat, i) => {
-      const a = (i / NET_CATEGORIES.length) * Math.PI * 2 - Math.PI/2;
-      const hub = {
-        x: cx + Math.cos(a) * hubR,
-        y: cy + Math.sin(a) * hubR,
-        r: 6,
-        color: cat.color,
-        label: cat.label,
-        hub: true,
-        catIdx: i,
-        phase: Math.random() * Math.PI * 2
+    const el = $('mnGlobeContainer'); if (!el) return;
+    if (typeof Globe !== 'function') { setTimeout(initNetwork, 300); return; }
+    try {
+      MP_GLOBE = Globe()(el)
+        .backgroundColor('rgba(0,0,0,0)')
+        .showAtmosphere(true)
+        .atmosphereColor('#00e5ff')
+        .atmosphereAltitude(0.22)
+        .globeImageUrl('https://unpkg.com/three-globe@2.31.1/example/img/earth-night.jpg')
+        .bumpImageUrl('https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png')
+        .pointOfView({ lat: 20, lng: -30, altitude: 2.2 }, 0);
+      try {
+        const mat = MP_GLOBE.globeMaterial && MP_GLOBE.globeMaterial();
+        if (mat) { mat.shininess = 6; }
+      } catch(_) {}
+      MP_GLOBE.controls().autoRotate = true;
+      MP_GLOBE.controls().autoRotateSpeed = 0.45;
+      MP_GLOBE.controls().enableZoom = false;
+      // Propagating rings on a few major market regions (decorative)
+      MP_GLOBE.ringsData([
+        { lat: 38.9, lng: -77.0 },
+        { lat: 37.7, lng: -122.4 },
+        { lat: 51.5, lng: -0.12 },
+        { lat: 35.6, lng: 139.6 }
+      ])
+        .ringColor(() => t => 'rgba(0,229,255,' + (1 - t) + ')')
+        .ringMaxRadius(5)
+        .ringPropagationSpeed(2)
+        .ringRepeatPeriod(2200);
+      const resize = () => {
+        const r = el.getBoundingClientRect();
+        if (r.width && r.height) MP_GLOBE.width(r.width).height(r.height);
       };
-      NET_NODES.push(hub);
-      const hubIdx = NET_NODES.length - 1;
-      // Child nodes
-      const nChildren = 4 + Math.floor(Math.random() * 3);
-      for (let j = 0; j < nChildren; j++) {
-        const ca = a + (Math.random() - 0.5) * 0.8;
-        const cr = hubR + 35 + Math.random() * 50;
-        const child = {
-          x: cx + Math.cos(ca) * cr,
-          y: cy + Math.sin(ca) * cr,
-          r: 2 + Math.random() * 2,
-          color: cat.color,
-          parent: hubIdx,
-          phase: Math.random() * Math.PI * 2
-        };
-        NET_NODES.push(child);
-        NET_EDGES.push({ from: hubIdx, to: NET_NODES.length - 1, phase: Math.random() * Math.PI * 2 });
-      }
-    });
-    // Inter-hub connections
-    for (let i = 0; i < NET_CATEGORIES.length; i++) {
-      const hubI = i * (1 + 0); // approximate — recompute
-    }
-    // Rebuild inter-hub edges properly
-    const hubIdxs = NET_NODES.map((n, i) => n.hub ? i : -1).filter(i => i >= 0);
-    for (let i = 0; i < hubIdxs.length; i++) {
-      for (let j = i + 1; j < hubIdxs.length; j++) {
-        NET_EDGES.push({ from: hubIdxs[i], to: hubIdxs[j], phase: Math.random() * Math.PI * 2, weak: true });
-      }
-    }
-  }
-  function drawNetwork() {
-    if (!NET_CTX) return requestAnimationFrame(drawNetwork);
-    // Rebuild if canvas resized
-    const W = NET_CTX.canvas.width / 2, H = NET_CTX.canvas.height / 2;
-    NET_T += 0.012;
-    NET_CTX.clearRect(0, 0, W, H);
-
-    // Background grid
-    NET_CTX.strokeStyle = 'rgba(0,229,255,0.04)';
-    NET_CTX.lineWidth = 1;
-    const gridStep = 40;
-    for (let x = 0; x < W; x += gridStep) {
-      NET_CTX.beginPath(); NET_CTX.moveTo(x, 0); NET_CTX.lineTo(x, H); NET_CTX.stroke();
-    }
-    for (let y = 0; y < H; y += gridStep) {
-      NET_CTX.beginPath(); NET_CTX.moveTo(0, y); NET_CTX.lineTo(W, y); NET_CTX.stroke();
-    }
-
-    // Edges
-    for (const e of NET_EDGES) {
-      const a = NET_NODES[e.from], b = NET_NODES[e.to];
-      if (!a || !b) continue;
-      const flow = (Math.sin(NET_T * 2 + e.phase) + 1) / 2;
-      const alpha = e.weak ? 0.06 + flow * 0.08 : 0.15 + flow * 0.3;
-      NET_CTX.strokeStyle = 'rgba(0,229,255,' + alpha + ')';
-      NET_CTX.lineWidth = e.weak ? 0.5 : 1;
-      NET_CTX.beginPath();
-      NET_CTX.moveTo(a.x, a.y);
-      NET_CTX.lineTo(b.x, b.y);
-      NET_CTX.stroke();
-      // Pulse packet along edge
-      if (!e.weak) {
-        const pt = (NET_T * 0.5 + e.phase) % 1;
-        const px = a.x + (b.x - a.x) * pt;
-        const py = a.y + (b.y - a.y) * pt;
-        NET_CTX.fillStyle = 'rgba(0,229,255,0.9)';
-        NET_CTX.shadowColor = '#00e5ff';
-        NET_CTX.shadowBlur = 8;
-        NET_CTX.beginPath();
-        NET_CTX.arc(px, py, 1.8, 0, Math.PI*2);
-        NET_CTX.fill();
-        NET_CTX.shadowBlur = 0;
-      }
-    }
-
-    // Nodes
-    for (const n of NET_NODES) {
-      const pulse = (Math.sin(NET_T * 1.5 + n.phase) + 1) / 2;
-      const r = n.r * (1 + pulse * 0.4);
-      NET_CTX.fillStyle = n.color;
-      NET_CTX.shadowColor = n.color;
-      NET_CTX.shadowBlur = n.hub ? 20 : 10;
-      NET_CTX.beginPath();
-      NET_CTX.arc(n.x, n.y, r, 0, Math.PI * 2);
-      NET_CTX.fill();
-      NET_CTX.shadowBlur = 0;
-      if (n.hub) {
-        // Halo
-        NET_CTX.strokeStyle = n.color + '66';
-        NET_CTX.lineWidth = 1;
-        NET_CTX.beginPath();
-        NET_CTX.arc(n.x, n.y, r + 8 + pulse * 4, 0, Math.PI * 2);
-        NET_CTX.stroke();
-        // Label
-        NET_CTX.fillStyle = n.color;
-        NET_CTX.font = '600 9px JetBrains Mono';
-        NET_CTX.textAlign = 'center';
-        NET_CTX.fillText(n.label, n.x, n.y - 14);
-      }
-    }
-    requestAnimationFrame(drawNetwork);
+      resize();
+      window.addEventListener('resize', resize);
+    } catch (e) { console.warn('mp globe init failed', e); }
   }
 
   // ================================================================
@@ -2995,6 +3073,7 @@
   // ================================================================
   const _origRenderPositions = renderPositions;
   renderPositions = function() {
+    try {
     const box = $('positionsGrid');
     if (!box || !box.classList.contains('pos-clean')) {
       return _origRenderPositions.apply(this, arguments);
@@ -3016,6 +3095,7 @@
         + '<div class="v"><span class="k">ROI</span><span class="num ' + cls + '">' + fmtPct(pct) + '</span></div>'
         + '</div>';
     }).join('');
+    } catch (e) { console.warn('renderPositions', e); }
   };
 
   // ================================================================
@@ -3063,27 +3143,248 @@
   };
 
   // ================================================================
-  // Hook into existing data flows
+  // Hook into existing data flows — with try/catch so missing elements
+  // on the non-active page don't kill loadPortfolio.
   // ================================================================
   const _origRenderKpis = renderKpis;
-  renderKpis = function() {
-    _origRenderKpis.apply(this, arguments);
-  };
+  renderKpis = function() { try { _origRenderKpis.apply(this, arguments); } catch (e) { console.warn('renderKpis', e); } };
   const _origRenderTrades = renderTrades;
-  renderTrades = function() {
-    _origRenderTrades.apply(this, arguments);
-  };
+  renderTrades = function() { try { _origRenderTrades.apply(this, arguments); } catch (e) { console.warn('renderTrades', e); } };
+  const _origRenderChart = renderChart;
+  renderChart = function() { try { _origRenderChart.apply(this, arguments); } catch (e) { console.warn('renderChart', e); } };
   const _origLoadBrowser = loadBrowser;
   loadBrowser = async function() {
     await _origLoadBrowser.apply(this, arguments);
     try { updateNarrative(); } catch(_) {}
   };
 
-  // pushFeed becomes a no-op if liveFeed element has no parent visible — safe
-  // (initStrategies / initTickertape are never called, harmless)
-  function initStrategies() {}
+  // (initTickertape is never called, harmless)
   function initTickertape() {}
-  function renderStrategies() {}
+
+  // ================================================================
+  // STRATEGIES v2 — agent-managed via clawdash.createStrategy
+  // Each strategy is stored as a mini skill.md-shaped object.
+  // ================================================================
+  function initStrategies2() { renderStrategies(); }
+  function renderStrategies() {
+    const box = $('stratList'); if (!box) return;
+    const countEl = $('stratCount'); if (countEl) countEl.textContent = STRATS.length;
+    if (!STRATS.length) {
+      box.innerHTML = '<div class="empty"><div class="big">NO STRATEGIES</div>Ask the agent to create one.</div>';
+      return;
+    }
+    box.innerHTML = STRATS.map(s => {
+      const m = s.metrics || {};
+      const pnl = m.pnl || 0;
+      const pnlCls = pnl > 0 ? 'pos' : (pnl < 0 ? 'neg' : '');
+      return '<div class="strat-card ' + (s.state || 'paused') + '" data-id="' + s.id + '">'
+        + '<div class="head">'
+        +   '<div class="name">' + escapeHtml(s.name || '—') + '</div>'
+        +   '<div class="status">' + (s.state || 'paused').toUpperCase() + '</div>'
+        + '</div>'
+        + (s.description ? '<div style="font-size:11px; color:var(--text-dim); line-height:1.5; margin:4px 0 8px;">' + escapeHtml(s.description) + '</div>' : '')
+        + '<div class="tags">' + (s.tags || []).map(t => '<span class="tag">' + escapeHtml(t) + '</span>').join('') + (s.risk ? '<span class="tag">' + escapeHtml(s.risk) + '</span>' : '') + '</div>'
+        + '<div class="metrics">'
+        +   '<div><span class="k">Trades</span><span class="v">' + (m.trades || 0) + '</span></div>'
+        +   '<div><span class="k">P&amp;L</span><span class="v ' + pnlCls + '">' + fmtUsd(pnl, true) + '</span></div>'
+        +   '<div><span class="k">Win %</span><span class="v">' + Math.round(m.wr || 0) + '%</span></div>'
+        +   '<div><span class="k">Exposure</span><span class="v">' + fmtUsd(m.exposure || 0) + '</span></div>'
+        + '</div>'
+        + '<div class="actions">'
+        +   '<button data-act="toggle">' + (s.state === 'active' ? 'Pause' : 'Activate') + '</button>'
+        +   '<button data-act="export">Export .md</button>'
+        +   '<button data-act="delete">Delete</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
+    box.querySelectorAll('.strat-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const btn = e.target.closest('button'); if (!btn) return;
+        const id = card.dataset.id;
+        const s = STRATS.find(x => x.id === id); if (!s) return;
+        if (btn.dataset.act === 'toggle') {
+          s.state = s.state === 'active' ? 'paused' : 'active';
+          saveStrategies(); renderStrategies();
+        } else if (btn.dataset.act === 'delete') {
+          if (!confirm('Delete strategy "' + s.name + '"?')) return;
+          STRATS = STRATS.filter(x => x.id !== id);
+          saveStrategies(); renderStrategies();
+        } else if (btn.dataset.act === 'export') {
+          const md = strategyToSkillMd(s);
+          const blob = new Blob([md], { type: 'text/markdown' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = (s.name || 'strategy').replace(/[^a-z0-9]+/gi,'_') + '.md';
+          a.click(); URL.revokeObjectURL(url);
+        }
+      });
+    });
+  }
+  function strategyToSkillMd(s) {
+    return [
+      '---',
+      'name: ' + (s.name || 'strategy'),
+      'description: ' + (s.description || ''),
+      'tags: [' + (s.tags || []).join(', ') + ']',
+      'risk: ' + (s.risk || 'med'),
+      'state: ' + (s.state || 'paused'),
+      '---',
+      '',
+      '# ' + (s.name || 'Strategy'),
+      '',
+      s.description || '',
+      '',
+      '## Entry Rules',
+      '',
+      s.entry || '_(none specified)_',
+      '',
+      '## Agent Instructions',
+      '',
+      s.prompt || '_(none specified)_'
+    ].join('\n');
+  }
+  // Expose creation to agent via clawdash
+  window.createStrategy = function(args) {
+    if (!args || !args.name) return;
+    const strat = {
+      id: 's_' + Date.now().toString(36),
+      name: args.name,
+      description: args.description || '',
+      tags: Array.isArray(args.tags) ? args.tags : (args.tags ? String(args.tags).split(',').map(t=>t.trim()) : []),
+      risk: args.risk || 'med',
+      alloc: args.alloc || '',
+      entry: args.entry || args.entryRules || '',
+      prompt: args.prompt || args.instructions || '',
+      state: args.state || 'paused',
+      metrics: { trades: 0, pnl: 0, wr: 0, exposure: 0 },
+      created: Date.now()
+    };
+    STRATS.unshift(strat);
+    saveStrategies();
+    renderStrategies();
+    if (typeof pushAgentMessageSystem === 'function') pushAgentMessageSystem('Strategy created: ' + strat.name);
+  };
+  // Add createStrategy into the clawdash handler
+  (function hookClawdash() {
+    if (typeof processClawdashBlocks !== 'function') return;
+    const _orig = processClawdashBlocks;
+    window.__clawdashExtra = { createStrategy: (a) => window.createStrategy(a) };
+    // Note: the actual dispatch happens in the original function's `allowed` map.
+    // Patch by wrapping:
+    processClawdashBlocks = function(text) {
+      if (typeof text !== 'string') { try { text = String(text == null ? '' : text); } catch { return ''; } }
+      const re = /```clawdash\s*([\s\S]*?)```/g;
+      return text.replace(re, (_, body) => {
+        try {
+          const obj = JSON.parse(body.trim());
+          const calls = Array.isArray(obj) ? obj : [obj];
+          const allowed = {
+            addFeedItem: (a) => window.addFeedItem && window.addFeedItem(a.message || a.text || '', a.type || ''),
+            refreshDashboard: () => window.refreshDashboard && window.refreshDashboard(),
+            updateWallet: (a) => window.updateWallet && window.updateWallet(a.address || a.wallet, a.proxy),
+            updateAgentStatus: (a) => window.updateAgentStatus && window.updateAgentStatus(a),
+            setStraddleTokens: (a) => window.setStraddleTokens && window.setStraddleTokens(a.up, a.down),
+            pushAgentMessage: (a) => window.pushAgentMessage && window.pushAgentMessage(a.text || a.message || ''),
+            createStrategy: (a) => window.createStrategy && window.createStrategy(a),
+            setStrategyState: (a) => window.setStrategyState && window.setStrategyState(a.id, a.state),
+            reportStrategyMetrics: (a) => window.reportStrategyMetrics && window.reportStrategyMetrics(a.id, a.metrics || a)
+          };
+          for (const c of calls) {
+            const fn = allowed[c.fn];
+            if (fn) { try { fn(c.args || {}); } catch (e) { console.warn('clawdash', c.fn, e); } }
+          }
+        } catch (e) { console.warn('clawdash parse failed', e); }
+        return '';
+      });
+    };
+  })();
+
+  // ================================================================
+  // DRAWER — override openDrawer with big, rich, chat-enabled layout
+  // ================================================================
+  const _origOpenDrawer = openDrawer;
+  openDrawer = async function(market, eventObj) {
+    $('drawer').classList.add('open');
+    $('drawerOverlay').classList.add('open');
+    const body = $('drawerBody');
+    const prices = parseJsonField(market.outcomePrices, [null, null]);
+    const outcomes = parseJsonField(market.outcomes, ['Yes', 'No']);
+    const tokenIds = parseJsonField(market.clobTokenIds, []);
+    const yesPrice = prices[0] != null ? (parseFloat(prices[0])*100).toFixed(1) : '—';
+    const noPrice  = prices[1] != null ? (parseFloat(prices[1])*100).toFixed(1) : '—';
+    const vol = market.volume24hr ? '$' + Math.round(market.volume24hr).toLocaleString() : '—';
+    const endDate = market.endDate ? new Date(market.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const img = (eventObj && (eventObj.image || eventObj.icon)) || market.image || market.icon || '';
+    const bgStyle = img ? 'background-image:url(\'' + img.replace(/'/g,'%27') + '\')' : '';
+    const slug = (eventObj && eventObj.slug) || market.slug || '';
+    const polyUrl = slug ? 'https://polymarket.com/event/' + slug : 'https://polymarket.com';
+    const desc = (market.description || (eventObj && eventObj.description) || 'No description available.');
+    const title = market.question || (eventObj && eventObj.title) || 'Market';
+
+    body.innerHTML =
+      '<div class="hero-img" style="' + bgStyle + '"></div>'
+      + '<h3>' + escapeHtml(title) + '</h3>'
+      + '<div class="yesno-big">'
+      +   '<div class="pill yes"><span class="lbl">' + escapeHtml(outcomes[0] || 'YES').toUpperCase() + '</span><span class="price">' + yesPrice + '¢</span></div>'
+      +   '<div class="pill no"><span class="lbl">' + escapeHtml(outcomes[1] || 'NO').toUpperCase() + '</span><span class="price">' + noPrice + '¢</span></div>'
+      + '</div>'
+      + '<div class="stats">'
+      +   '<div class="stat"><div class="k">24h Volume</div><div class="v">' + vol + '</div></div>'
+      +   '<div class="stat"><div class="k">Resolves</div><div class="v">' + endDate + '</div></div>'
+      +   '<div class="stat"><div class="k">Spread</div><div class="v" id="drSpread">—</div></div>'
+      +   '<div class="stat"><div class="k">Mid</div><div class="v" id="drMid">—</div></div>'
+      + '</div>'
+      + '<a class="poly-link" href="' + polyUrl + '" target="_blank" rel="noopener">View on Polymarket</a>'
+      + '<div class="desc">' + escapeHtml(desc) + '</div>'
+      + '<div class="drawer-chat">'
+      +   '<label>Ask Oracle about this market</label>'
+      +   '<div class="row">'
+      +     '<input type="text" id="drChatInput" placeholder="e.g. Is YES overpriced?" />'
+      +     '<button id="drChatSend">ASK</button>'
+      +   '</div>'
+      +   '<div class="suggest">'
+      +     '<button data-q="What\'s the edge on this market?">Edge?</button>'
+      +     '<button data-q="What are the key risks here?">Risks</button>'
+      +     '<button data-q="What news could move this?">News impact</button>'
+      +     '<button data-q="Summarize this market in one paragraph.">Summarize</button>'
+      +   '</div>'
+      + '</div>';
+
+    // Wire up drawer chat
+    const drInput = $('drChatInput'), drSend = $('drChatSend');
+    const askAboutMarket = (q) => {
+      if (!q) return;
+      const prefix = 'About "' + (title || '').slice(0, 80) + '": ';
+      const mainInput = $('chatInput');
+      if (mainInput) { mainInput.value = prefix + q; }
+      // Switch to command page so the chat is visible
+      if (typeof setPage === 'function') setPage('command');
+      // Close drawer
+      closeDrawer();
+      // Fire send
+      setTimeout(() => {
+        if (typeof sendChat === 'function') sendChat();
+        else if ($('chatSend')) $('chatSend').click();
+      }, 350);
+    };
+    if (drSend) drSend.addEventListener('click', () => askAboutMarket(drInput.value.trim()));
+    if (drInput) drInput.addEventListener('keydown', e => { if (e.key === 'Enter') askAboutMarket(drInput.value.trim()); });
+    body.querySelectorAll('.drawer-chat .suggest button').forEach(b => {
+      b.addEventListener('click', () => askAboutMarket(b.dataset.q));
+    });
+
+    // Live mid/spread for Yes token
+    if (tokenIds && tokenIds[0]) {
+      try {
+        const [mid, sp] = await Promise.all([
+          fetchJson(CLOB + '/midpoint?token_id=' + tokenIds[0]).catch(() => null),
+          fetchJson(CLOB + '/spread?token_id=' + tokenIds[0]).catch(() => null)
+        ]);
+        if (mid && $('drMid')) $('drMid').textContent = parseFloat(mid.mid).toFixed(3);
+        if (sp && $('drSpread')) $('drSpread').textContent = parseFloat(sp.spread).toFixed(3);
+      } catch(_) {}
+    }
+  };
 
   boot();
 </script>
