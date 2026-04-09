@@ -1182,6 +1182,25 @@
   .big-chat .chat-input-row input { padding: 14px 16px; font-size: 13px; }
   .big-chat .chat-input-row button { padding: 0 24px; font-size: 11px; }
 
+  /* Voice button */
+  .voice-btn {
+    width: 44px; padding: 0 !important; flex-shrink: 0;
+    background: transparent !important; border: 1px solid var(--panel-border) !important;
+    color: var(--text-dim) !important; font-size: 15px !important;
+    cursor: pointer; border-radius: 2px; transition: all .15s ease;
+  }
+  .voice-btn:hover { color: var(--accent) !important; border-color: var(--accent-dim) !important; }
+  .voice-btn.listening {
+    color: var(--red) !important; border-color: rgba(255,56,96,0.5) !important;
+    background: rgba(255,56,96,0.08) !important;
+    animation: micPulse 1.3s infinite;
+  }
+  .voice-btn.unsupported { opacity: .3; cursor: not-allowed; }
+  @keyframes micPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,56,96,0.4); }
+    50%      { box-shadow: 0 0 0 8px rgba(255,56,96,0); }
+  }
+
   /* ---- PORTFOLIO (minimal) ---- */
   .portfolio-wrap { max-width: 1300px; margin: 0 auto; }
   .portfolio-wrap .mini-stats { grid-template-columns: repeat(4, 1fr); }
@@ -1518,10 +1537,11 @@
           </div>
           <div class="chat-log" id="chatLog"></div>
           <div class="chat-input-row">
+            <button id="voiceBtn" class="voice-btn" title="Hold to speak · click to toggle">🎙</button>
             <input type="text" id="chatInput" placeholder="Ask the agent anything…" disabled />
             <button id="chatSend" disabled>SEND</button>
           </div>
-          <div class="slash-hint">/refresh · /markets · /news · /positions</div>
+          <div class="slash-hint">/refresh · /markets · /news · /positions · 🎙 voice</div>
         </div>
       </div>
 
@@ -2002,9 +2022,9 @@
       renderChart();
       $('hSync').textContent = hhmmss();
       $('hWallet').textContent = shortAddr(WALLET);
-      pushAgentMessageSystem('Synced: ' + positions.length + ' positions · ' + trades.length + ' trades · ' + fmtUsd(portfolioValue));
+      // no chat spam — sync time shown in topbar hSync; errors go to console
     } catch (e) {
-      pushAgentMessageSystem('Sync failed: ' + e.message);
+      console.warn('sync failed', e);
     }
   }
 
@@ -2523,19 +2543,11 @@
       }
       return;
     }
-    // --- Legacy / non-streaming session.message frames
+    // --- session.message frames: the final message snapshot that fires AFTER
+    //     the assistant stream finishes. OpenClaw ALWAYS streams first via the
+    //     "agent" event, so this frame is always a duplicate. Drop it entirely.
+    //     (User-role frames are also dropped since sendChat renders locally.)
     if (frame.type === 'event' && frame.event === 'session.message') {
-      const p = frame.payload || frame.params || {};
-      const msg = p.message || {};
-      const role = msg.role || p.role || 'agent';
-      if (role === 'user') return; // local echo — already rendered
-      const runId = String(p.runId || msg.runId || '');
-      if (runId && _streamBubbles[runId]) return; // already rendered by the stream
-      const text = extractFrameText(msg || p);
-      if (text) {
-        const cleaned = processClawdashBlocks(text);
-        if (cleaned.trim()) addBubble(cleaned, 'agent');
-      }
       return;
     }
     // Debug: keep a rolling log of unhandled frames for console inspection
@@ -2754,6 +2766,7 @@
     initQuickPrompts();
     try { renderStrategies(); } catch(_) {}
     try { refreshCash(); } catch(_) {}
+    try { initVoice(); } catch(_) {}
     setInterval(() => {
       const panels = document.querySelectorAll('.panel, .kpi');
       if (!panels.length) return;
@@ -3992,6 +4005,78 @@
       if (typeof sendChat === 'function') sendChat();
       else if ($('chatSend')) $('chatSend').click();
     }, 300);
+  }
+
+  // ================================================================
+  // VOICE INPUT — Web Speech API (Chrome/Edge/Safari)
+  // Click to toggle listening, auto-sends on final result.
+  // ================================================================
+  let VOICE_REC = null, VOICE_ON = false;
+  function initVoice() {
+    const btn = $('voiceBtn'); if (!btn) return;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      btn.classList.add('unsupported');
+      btn.title = 'Voice not supported in this browser — use Chrome/Edge';
+      btn.addEventListener('click', () => {
+        alert('Voice input requires the Web Speech API. Try Chrome, Edge, or Safari.');
+      });
+      return;
+    }
+    VOICE_REC = new SR();
+    VOICE_REC.lang = 'en-US';
+    VOICE_REC.interimResults = true;
+    VOICE_REC.continuous = false;
+    VOICE_REC.maxAlternatives = 1;
+
+    const inp = $('chatInput');
+    VOICE_REC.onresult = (ev) => {
+      let interim = '', finalText = '';
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const r = ev.results[i];
+        if (r.isFinal) finalText += r[0].transcript;
+        else interim += r[0].transcript;
+      }
+      if (inp) inp.value = (finalText || interim).trim();
+      if (finalText) {
+        // Auto-send on final transcript
+        setTimeout(() => {
+          if (typeof sendChat === 'function') sendChat();
+          else if ($('chatSend')) $('chatSend').click();
+        }, 200);
+      }
+    };
+    VOICE_REC.onstart = () => {
+      VOICE_ON = true;
+      btn.classList.add('listening');
+      btn.textContent = '●';
+      if (inp) inp.placeholder = 'Listening…';
+    };
+    VOICE_REC.onend = () => {
+      VOICE_ON = false;
+      btn.classList.remove('listening');
+      btn.textContent = '🎙';
+      if (inp) inp.placeholder = 'Ask the agent anything…';
+    };
+    VOICE_REC.onerror = (e) => {
+      console.warn('voice error', e.error);
+      VOICE_ON = false;
+      btn.classList.remove('listening');
+      btn.textContent = '🎙';
+      if (inp) inp.placeholder = 'Ask the agent anything…';
+      if (e.error === 'not-allowed') {
+        alert('Microphone permission denied. Enable it in your browser settings.');
+      }
+    };
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (VOICE_ON) {
+        try { VOICE_REC.stop(); } catch {}
+      } else {
+        try { VOICE_REC.start(); } catch (err) { console.warn('voice start failed', err); }
+      }
+    });
   }
 
   // ================================================================
