@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__browser-tools__getNetworkErrors",
+      "mcp__browser-tools__getConsoleErrors",
+      "mcp__browser-tools__getConsoleLogs",
+      "mcp__browser-tools__getNetworkLogs"
+    ]
+  }
+}

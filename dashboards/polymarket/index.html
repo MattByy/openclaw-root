@@ -531,21 +531,31 @@
   // __GATEWAY_TOKEN__ is the auth token for the OpenClaw gateway's
   // control UI protocol (loopback gateway.controlUi.allowInsecureAuth).
   // ================================================================
-  // ---------- AUTH GATE (mirrors clawauth.js) ----------
+  // ---------- AUTH GATE (mirrors clawauth.js, with local-dev bypass) ----------
   (function(){
-    if (!window.location.hostname.endsWith('.oc.clawmode.ai')) return;
     var p = new URLSearchParams(window.location.search);
     var t = p.get('token');
-    var s = localStorage.getItem('claw_token');
-    var token = t || s;
+    var gw = p.get('gw');
+    // Always persist ?token= and ?gw= from URL, regardless of host — enables local-dev testing.
+    try {
+      if (t) localStorage.setItem('claw_token', t);
+      if (gw) localStorage.setItem('claw_gw_host', gw);
+    } catch(_) {}
+    if (t || gw) {
+      p.delete('token');
+      p.delete('gw');
+      var qs = p.toString();
+      history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+    }
+    // Only enforce clawmode.ai SSO on deployed OpenClaw hosts.
+    if (!window.location.hostname.endsWith('.oc.clawmode.ai')) {
+      window.__AUTH_TOKEN__ = localStorage.getItem('claw_token') || null;
+      return;
+    }
+    var token = t || localStorage.getItem('claw_token');
     if (token) {
       localStorage.setItem('claw_token', token);
       window.__AUTH_TOKEN__ = token;
-      if (t) {
-        p.delete('token');
-        var qs = p.toString();
-        history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
-      }
     } else {
       var d = window.location.hostname.split('.')[0];
       window.location.href = 'https://clawmode.ai/gateway?subdomain=' + d;
@@ -1132,17 +1142,30 @@
   function nextId() { gwRid += 1; return 'dash-' + gwRid; }
 
   function connectGateway() {
+    var isLocal = /^(localhost|127\.)/.test(location.hostname);
+    // Local dev: skip WS entirely — gateway requires same-origin, cross-origin is blocked by Traefik.
+    if (isLocal) {
+      setChatConn('off', 'LOCAL DEV');
+      addBubble('Local dev mode — chat only works when the dashboard is served from the deployed container (same origin as the gateway). Everything else (data, UI, markets, news) works fine here.', 'sys');
+      return;
+    }
     GW_TOKEN = window.__GATEWAY_TOKEN__ || (function(){ try { return localStorage.getItem('claw_token'); } catch(e) { return null; } })();
     if (!GW_TOKEN) {
       setChatConn('off', 'NO TOKEN');
-      addBubble('Agent offline — no gateway token configured. n8n should inject window.__GATEWAY_TOKEN__ at deploy time.', 'sys');
+      addBubble('Agent offline — no gateway token configured.', 'sys');
       return;
     }
     setChatConn('off', 'CONNECTING');
     try {
       // Gateway lives on the BASE subdomain (not -dash). Use wss:// on https.
-      var gwHost = location.hostname.replace(/-dash\.oc\./, '.oc.');
-      var gwProto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+      // Local-dev override: ?gw=<host> query param or localStorage.claw_gw_host
+      // lets you point a localhost-served dashboard at a real deployed gateway.
+      var qpGw = new URLSearchParams(location.search).get('gw');
+      if (qpGw) { try { localStorage.setItem('claw_gw_host', qpGw); } catch(_) {} }
+      var override = (function(){ try { return localStorage.getItem('claw_gw_host'); } catch(_) { return null; } })();
+      var gwHost = override || location.hostname.replace(/-dash\.oc\./, '.oc.');
+      // If override set, force wss:// (prod gateway is behind HTTPS). Otherwise match page protocol.
+      var gwProto = (override || location.protocol === 'https:') ? 'wss://' : 'ws://';
       gw = new WebSocket(gwProto + gwHost + '/');
     } catch (e) {
       setChatConn('off', 'FAILED');
