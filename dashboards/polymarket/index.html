@@ -971,6 +971,170 @@
   .topbar-tab-hint { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 1.2px; text-transform: uppercase; }
 
   /* ============================================================ */
+  /* ============   POLYMARKET CONNECT MODAL v2        ========== */
+  /* ============================================================ */
+  .tc-modal {
+    width: 640px !important; max-width: 96vw !important; padding: 0 !important;
+    overflow: hidden; border: 1px solid var(--accent-dim) !important;
+    background: #06090f !important;
+    box-shadow: 0 0 80px rgba(0,229,255,0.22), inset 0 0 60px rgba(0,229,255,0.03) !important;
+  }
+  .tc-modal::before, .tc-modal::after { width: 18px !important; height: 18px !important; }
+
+  .tc-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 22px 26px 18px;
+    background: linear-gradient(180deg, rgba(0,229,255,0.08), rgba(6,9,15,0));
+    border-bottom: 1px solid var(--panel-border);
+  }
+  .tc-title { display: flex; gap: 16px; align-items: flex-start; }
+  .tc-badge {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #7df9ff, #00e5ff 60%, #003a52 100%);
+    box-shadow: 0 0 28px var(--accent-dim), inset 0 0 16px rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: #001a24; font-size: 20px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .tc-title h3 {
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 17px !important; font-weight: 600; letter-spacing: 4px;
+    color: var(--accent) !important; text-shadow: 0 0 18px var(--accent-dim);
+    margin-bottom: 5px !important;
+  }
+  .tc-sub {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .tc-close {
+    background: transparent; border: 1px solid var(--panel-border);
+    color: var(--text-dim); width: 30px; height: 30px; border-radius: 2px;
+    font-size: 14px; cursor: pointer; flex-shrink: 0;
+    transition: all .15s ease;
+  }
+  .tc-close:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+  .tc-body { padding: 22px 26px 14px; max-height: 72vh; overflow-y: auto; }
+  .tc-body::-webkit-scrollbar { width: 4px; }
+  .tc-body::-webkit-scrollbar-thumb { background: var(--accent-dim); }
+
+  .tc-section { margin-bottom: 18px; }
+  .tc-section-head { margin-bottom: 12px; }
+  .tc-section-title {
+    font-family: 'Orbitron', sans-serif; font-size: 12px; letter-spacing: 3px;
+    color: var(--accent); text-transform: uppercase; text-shadow: 0 0 10px var(--accent-dim);
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .tc-section-title .n {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim);
+    letter-spacing: 1px; font-weight: 400;
+  }
+  .tc-hint {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim);
+    letter-spacing: 0.8px; margin-top: 5px; line-height: 1.5;
+  }
+
+  .tc-field { margin-bottom: 12px; }
+  .tc-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tc-field-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: var(--text); letter-spacing: 1.6px; text-transform: uppercase;
+    margin-bottom: 6px; font-weight: 500;
+  }
+  .tc-field-label .opt {
+    color: var(--text-mute); font-weight: 400; text-transform: none;
+    letter-spacing: 0.5px; font-size: 9px; margin-left: 6px;
+  }
+  .tc-modal input[type=text],
+  .tc-modal input[type=password] {
+    width: 100%; background: rgba(4,6,11,0.75);
+    border: 1px solid var(--panel-border); color: var(--text);
+    padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    border-radius: 2px; outline: none; transition: all .15s ease;
+    margin-bottom: 0;
+  }
+  .tc-modal input[type=text]:focus,
+  .tc-modal input[type=password]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent-dim), 0 0 16px rgba(0,229,255,0.18);
+    background: rgba(0,229,255,0.04);
+  }
+  .tc-modal input::placeholder { color: var(--text-mute); font-size: 11px; }
+  .tc-field-hint {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px; color: var(--text-mute);
+    letter-spacing: 0.6px; margin-top: 5px;
+  }
+
+  .tc-divider {
+    display: flex; align-items: center; gap: 14px; margin: 22px 0 18px;
+  }
+  .tc-divider .line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--panel-border), transparent);
+  }
+  .tc-or {
+    font-family: 'JetBrains Mono', monospace; font-size: 8px;
+    color: var(--text-dim); letter-spacing: 2px; white-space: nowrap;
+  }
+
+  .tc-warn {
+    border: 1px solid rgba(255,192,72,0.22); background: rgba(255,192,72,0.04);
+    border-radius: 2px; padding: 12px 14px; margin: 16px 0 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 9px;
+    color: var(--amber); letter-spacing: 0.5px; line-height: 1.6;
+  }
+  .tc-warn b { color: #ffd47a; text-transform: uppercase; letter-spacing: 1px; }
+  .tc-warn code { color: var(--accent); background: rgba(0,229,255,0.06); padding: 1px 5px; border-radius: 2px; }
+
+  .tc-status-wrap { padding: 6px 0 0; }
+  .tc-status {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 1.2px;
+    text-transform: uppercase; padding: 7px 12px; border: 1px solid;
+    border-radius: 2px; transition: all .2s ease;
+  }
+  .tc-status .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .tc-status.idle { color: var(--text-dim); border-color: var(--panel-border); background: rgba(107,132,144,0.06); }
+  .tc-status.working { color: var(--amber); border-color: rgba(255,192,72,0.32); background: rgba(255,192,72,0.06); }
+  .tc-status.working .dot { box-shadow: 0 0 10px var(--amber); animation: pulse 1.2s infinite; }
+  .tc-status.ok { color: var(--accent); border-color: var(--accent-dim); background: var(--accent-fade); }
+  .tc-status.ok .dot { box-shadow: 0 0 10px var(--accent); animation: pulse 1.6s infinite; }
+  .tc-status.err { color: var(--red); border-color: rgba(255,56,96,0.32); background: rgba(255,56,96,0.06); }
+
+  .tc-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 26px; border-top: 1px solid var(--panel-border);
+    background: rgba(4,6,11,0.5);
+  }
+  .tc-actions { display: flex; gap: 10px; }
+  .tc-btn {
+    padding: 11px 22px; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer;
+    border-radius: 2px; transition: all .15s ease; border: 1px solid;
+  }
+  .tc-btn.primary {
+    color: var(--accent); border-color: var(--accent-dim);
+    background: rgba(0,229,255,0.1);
+    box-shadow: inset 0 0 14px rgba(0,229,255,0.08);
+  }
+  .tc-btn.primary:hover {
+    background: rgba(0,229,255,0.2);
+    box-shadow: 0 0 18px var(--accent-dim), inset 0 0 20px rgba(0,229,255,0.15);
+    text-shadow: 0 0 10px var(--accent);
+  }
+  .tc-btn.ghost {
+    color: var(--text-dim); border-color: var(--panel-border); background: transparent;
+  }
+  .tc-btn.ghost:hover { color: var(--text); border-color: var(--accent-dim); }
+
+  @media (max-width: 640px) {
+    .tc-field-grid { grid-template-columns: 1fr; }
+    .tc-head { padding: 18px 20px 14px; }
+    .tc-body { padding: 18px 20px 12px; }
+    .tc-footer { padding: 14px 20px; flex-direction: column; gap: 10px; }
+  }
+
+  /* ============================================================ */
   /* ============   REDESIGN v3 — MINIMAL + VISUAL      ========= */
   /* ============================================================ */
 
@@ -1496,26 +1660,87 @@
 
 <!-- ============ POLYMARKET CONNECT MODAL ============ -->
 <div class="modal-overlay" id="tradeModal">
-  <div class="modal" style="width:560px;">
-    <h3>CONNECT // POLYMARKET</h3>
-    <p class="lead">Enter your Polygon private key. We'll sign an EIP-712 handshake, fetch your proxy wallet, and derive your CLOB API credentials automatically.</p>
-
-    <div class="trade-warn">
-      <b>⚠ HIGH RISK:</b> Your private key controls ALL funds in your wallet. It is stored <b>only in your browser's localStorage</b> and never transmitted to any server (except Polymarket's own clob.polymarket.com, for EIP-712 auth). Use a <b>burner wallet</b> dedicated to Polymarket trading. Never paste your main wallet's key.
+  <div class="modal tc-modal">
+    <div class="tc-head">
+      <div class="tc-title">
+        <div class="tc-badge">⚡</div>
+        <div>
+          <h3>CONNECT POLYMARKET</h3>
+          <div class="tc-sub">CLOB trading · Polygon · sigType 1 (PROXY)</div>
+        </div>
+      </div>
+      <button class="tc-close" id="tcCancel" title="Close">✕</button>
     </div>
 
-    <label>Private Key (hex, with or without 0x)</label>
-    <input type="password" id="tcPrivKey" placeholder="0x..." autocomplete="new-password" />
+    <div class="tc-body">
 
-    <label>Proxy Wallet Address <span style="color:var(--text-mute);">(optional — auto-fetched from Polymarket if blank)</span></label>
-    <input type="text" id="tcProxy" placeholder="0x..." />
+      <div class="tc-section">
+        <div class="tc-section-head">
+          <div class="tc-section-title"><span class="n">01</span> Wallet</div>
+          <div class="tc-hint">The signer key that controls your Polymarket proxy wallet.</div>
+        </div>
+        <div class="tc-field">
+          <div class="tc-field-label">Private Key</div>
+          <input type="password" id="tcPrivKey" placeholder="Paste your 0x… Polygon EOA private key" autocomplete="new-password" />
+          <div class="tc-field-hint">64 hex chars. Used once to sign the EIP-712 handshake, then stored in localStorage.</div>
+        </div>
+        <div class="tc-field-grid">
+          <div class="tc-field">
+            <div class="tc-field-label">Proxy Wallet</div>
+            <input type="text" id="tcProxy" placeholder="0x… (auto-fetched if blank)" />
+          </div>
+          <div class="tc-field">
+            <div class="tc-field-label">Funder <span class="opt">optional</span></div>
+            <input type="text" id="tcFunder" placeholder="Defaults to proxy" />
+          </div>
+        </div>
+      </div>
 
-    <div id="tcStatus" class="trade-status off" style="margin-top:14px; display:none;"><span class="dot"></span><span id="tcStatusText">—</span></div>
+      <div class="tc-divider">
+        <span class="line"></span>
+        <span class="tc-or">OR PASTE EXISTING CLOB CREDENTIALS</span>
+        <span class="line"></span>
+      </div>
 
-    <div class="btns">
-      <button class="ghost" id="tcClear">Disconnect</button>
-      <button class="ghost" id="tcCancel">Cancel</button>
-      <button class="primary" id="tcConnect">Connect</button>
+      <div class="tc-section">
+        <div class="tc-section-head">
+          <div class="tc-section-title"><span class="n">02</span> CLOB API Credentials</div>
+          <div class="tc-hint">If blank, we'll derive these from the private key via EIP-712 handshake.</div>
+        </div>
+        <div class="tc-field">
+          <div class="tc-field-label">API Key</div>
+          <input type="text" id="tcApiKey" placeholder="Polymarket CLOB API key" autocomplete="off" />
+        </div>
+        <div class="tc-field-grid">
+          <div class="tc-field">
+            <div class="tc-field-label">API Secret</div>
+            <input type="password" id="tcApiSecret" placeholder="base64url secret" autocomplete="new-password" />
+          </div>
+          <div class="tc-field">
+            <div class="tc-field-label">API Passphrase</div>
+            <input type="password" id="tcApiPass" placeholder="passphrase" autocomplete="new-password" />
+          </div>
+        </div>
+      </div>
+
+      <div class="tc-warn">
+        <b>⚠ Security:</b> Credentials live in your browser's localStorage. Never paste your main wallet's key — use a burner EOA funded just for Polymarket trading. Only <code>clob.polymarket.com</code> and <code>gamma-api.polymarket.com</code> ever see these values, and only over HTTPS.
+      </div>
+
+      <div class="tc-status-wrap">
+        <div id="tcStatus" class="tc-status idle">
+          <span class="dot"></span>
+          <span id="tcStatusText">Not connected</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tc-footer">
+      <button class="tc-btn ghost" id="tcClear">Disconnect</button>
+      <div class="tc-actions">
+        <button class="tc-btn ghost" id="tcTest">Test Only</button>
+        <button class="tc-btn primary" id="tcConnect">Connect</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2253,15 +2478,16 @@
       return;
     }
     // Session message / event
-    // --- Streaming events (event: "agent" or "chat")
-    if (frame.type === 'event' && (frame.event === 'agent' || frame.event === 'chat')) {
+    // --- Streaming events (event: "agent"): text arrives as data.text snapshot + data.delta chunks
+    if (frame.type === 'event' && frame.event === 'agent') {
       const p = frame.payload || {};
       const data = p.data || {};
       const stream = p.stream || data.stream || '';
       const runId = String(p.runId || data.runId || '');
+      // lifecycle frames (stream: "lifecycle", data.phase: "end") — ignore
+      if (stream === 'lifecycle') return;
       const state = String(p.state || data.state || '');
       const role = (stream === 'user') ? 'user' : 'agent';
-      // Thinking / start states: just ensure the typing indicator persists
       if (state === 'thinking' || state === 'start' || state === 'pending') {
         try {
           const existing = chatLog.querySelector('.bubble.agent.typing');
@@ -2275,26 +2501,66 @@
         } catch {}
         return;
       }
-      // Pull text from whatever shape the frame uses
-      const pick = (v) => (typeof v === 'string' ? v : '');
-      const fullText = pick(data.text) || pick(data.content) || pick(data.message) || pick(p.text) || pick(p.content) || pick(p.message);
-      const delta    = pick(data.delta) || pick(data.chunk) || pick(p.delta) || pick(p.chunk);
-      if (fullText || delta) {
-        upsertStreamingBubble(runId, role, fullText, delta);
+      const fullText = extractFrameText(data) || extractFrameText(p);
+      const delta    = (typeof data.delta === 'string' ? data.delta : '') || (typeof p.delta === 'string' ? p.delta : '');
+      if (fullText || delta) upsertStreamingBubble(runId, role, fullText, delta);
+      return;
+    }
+    // --- "chat" events: final-message mirrors of the streamed agent output.
+    //     If we already rendered the runId via stream, drop these to avoid duplicates / [object Object].
+    if (frame.type === 'event' && frame.event === 'chat') {
+      const p = frame.payload || {};
+      const runId = String(p.runId || '');
+      if (runId && _streamBubbles[runId]) return; // already rendered by the stream
+      const text = extractFrameText(p.message || p);
+      if (text) {
+        const cleaned = processClawdashBlocks(text);
+        if (cleaned.trim()) addBubble(cleaned, 'agent');
       }
       return;
     }
-    // --- Legacy / non-streaming session message frames
+    // --- Legacy / non-streaming session.message frames
     if (frame.type === 'event' && frame.event === 'session.message') {
       const p = frame.payload || frame.params || {};
-      const text = p.text || p.content || p.message || '';
-      const role = p.role || 'agent';
+      const runId = String(p.runId || (p.message && p.message.runId) || '');
+      if (runId && _streamBubbles[runId]) return; // already rendered
+      const text = extractFrameText(p.message || p);
+      const role = (p.message && p.message.role) || p.role || 'agent';
       if (text) {
         const cleaned = processClawdashBlocks(text);
         if (cleaned.trim()) addBubble(cleaned, role === 'user' ? 'user' : 'agent');
       }
       return;
     }
+  }
+
+  // Robustly extract a text string from any of the shapes OpenClaw emits:
+  //   "hello"                                  → "hello"
+  //   { text: "hello" }                        → "hello"
+  //   { content: "hello" }                     → "hello"
+  //   { content: [{type:'text', text:'hi'}] }  → "hi"
+  //   { content: [{type:'thinking',...}, {type:'text', text:'hi'}] } → "hi"
+  //   { message: { content: [...] } }          → recurses
+  function extractFrameText(obj) {
+    if (obj == null) return '';
+    if (typeof obj === 'string') return obj;
+    if (Array.isArray(obj)) {
+      const parts = [];
+      for (const item of obj) {
+        if (!item) continue;
+        if (typeof item === 'string') { parts.push(item); continue; }
+        if (item.type && item.type !== 'text') continue; // skip thinking, tool_use, etc.
+        if (typeof item.text === 'string') parts.push(item.text);
+      }
+      return parts.join('');
+    }
+    if (typeof obj === 'object') {
+      if (typeof obj.text === 'string') return obj.text;
+      if (Array.isArray(obj.content)) return extractFrameText(obj.content);
+      if (typeof obj.content === 'string') return obj.content;
+      if (obj.message) return extractFrameText(obj.message);
+    }
+    return '';
   }
 
   // Track one streaming bubble per runId; finalize with clawdash parsing on latest snapshot.
@@ -2645,31 +2911,37 @@
     const modal = $('tradeModal');
     const open = () => {
       const c = loadTradingCreds() || {};
-      // never pre-fill the private key — security. Only fill proxy.
-      $('tcPrivKey').value = '';
+      $('tcPrivKey').value = '';     // never pre-fill key
       $('tcProxy').value = c.proxy || '';
-      setTcStatus(c.apiKey ? 'on' : 'off', c.apiKey ? ('CONNECTED · ' + shortAddr(c.proxy || c.signer || '')) : 'NOT CONNECTED');
+      $('tcFunder').value = c.funder || '';
+      $('tcApiKey').value = c.apiKey || '';
+      $('tcApiSecret').value = c.apiSecret || '';
+      $('tcApiPass').value = c.apiPass || '';
+      if (c.apiKey) setTcStatus('ok', 'CONNECTED · ' + shortAddr(c.proxy || c.signer || ''));
+      else setTcStatus('idle', 'Not connected');
       modal.classList.add('open');
     };
     const close = () => modal.classList.remove('open');
     btn.addEventListener('click', open);
     $('tcCancel').addEventListener('click', close);
     $('tcClear').addEventListener('click', () => {
+      if (!confirm('Disconnect Polymarket? This clears all stored credentials.')) return;
       try { localStorage.removeItem(TC_KEY); } catch {}
       window.__POLYMARKET_CREDS__ = null;
-      $('tcPrivKey').value = ''; $('tcProxy').value = '';
-      setTcStatus('off', 'DISCONNECTED');
+      ['tcPrivKey','tcProxy','tcFunder','tcApiKey','tcApiSecret','tcApiPass'].forEach(id => { const el = $(id); if (el) el.value = ''; });
+      setTcStatus('idle', 'Disconnected');
       updateTradeBtnState();
+      const el = $('hCash'); if (el) el.textContent = '—';
       if (typeof pushAgentMessageSystem === 'function') pushAgentMessageSystem('Polymarket disconnected.');
     });
-    $('tcConnect').addEventListener('click', () => connectPolymarket(close));
+    $('tcConnect').addEventListener('click', () => connectPolymarket(close, false));
+    $('tcTest').addEventListener('click', () => connectPolymarket(null, true));
     modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
     updateTradeBtnState();
   }
   function setTcStatus(state, text) {
     const el = $('tcStatus'); if (!el) return;
-    el.style.display = 'inline-flex';
-    el.className = 'trade-status ' + (state || 'off');
+    el.className = 'tc-status ' + (state || 'idle');
     const t = $('tcStatusText'); if (t) t.textContent = text || '';
   }
   function updateTradeBtnState() {
@@ -2683,27 +2955,42 @@
   // POLYMARKET CONNECT — ethers EIP-712 → /auth/api-key → save creds
   // Mirrors connection.md flow (py_clob_client / go polysnipe).
   // ================================================================
-  async function connectPolymarket(closeCb) {
+  async function connectPolymarket(closeCb, testOnly) {
     const pk = $('tcPrivKey').value.trim();
     const proxyOverride = $('tcProxy').value.trim();
-    if (!pk || !/^(0x)?[0-9a-fA-F]{64}$/.test(pk)) {
-      setTcStatus('off', 'INVALID PRIVATE KEY');
-      return;
-    }
-    if (typeof ethers === 'undefined' || !ethers.Wallet) {
-      setTcStatus('off', 'ETHERS.JS NOT LOADED');
-      return;
-    }
-    try {
-      setTcStatus('off', 'DERIVING EOA…');
-      const hex = pk.startsWith('0x') ? pk : '0x' + pk;
-      const wallet = new ethers.Wallet(hex);
-      const eoa = wallet.address;
+    const funderOverride = $('tcFunder').value.trim();
+    const pastedKey    = $('tcApiKey').value.trim();
+    const pastedSecret = $('tcApiSecret').value.trim();
+    const pastedPass   = $('tcApiPass').value.trim();
 
-      // 1. Resolve proxy wallet via gamma-api (unless user overrode it)
+    // Mode selection:
+    //   PASTE mode — user supplied full API credentials (apiKey+secret+passphrase)
+    //                → just validate+save, optionally resolve proxy from EOA if key given
+    //   DERIVE mode — user supplied only private key → sign EIP-712 → call Polymarket
+    const hasPasted = pastedKey && pastedSecret && pastedPass;
+    const hasKey = /^(0x)?[0-9a-fA-F]{64}$/.test(pk);
+    if (!hasPasted && !hasKey) {
+      setTcStatus('err', 'Need a private key OR full API credentials');
+      return;
+    }
+
+    try {
+      let wallet = null, eoa = '', signature = '', timestamp = '';
+      if (hasKey) {
+        if (typeof ethers === 'undefined' || !ethers.Wallet) {
+          setTcStatus('err', 'ethers.js failed to load');
+          return;
+        }
+        setTcStatus('working', 'Deriving EOA…');
+        const hex = pk.startsWith('0x') ? pk : '0x' + pk;
+        wallet = new ethers.Wallet(hex);
+        eoa = wallet.address;
+      }
+
+      // 1. Resolve proxy wallet
       let proxy = proxyOverride;
-      if (!proxy) {
-        setTcStatus('off', 'FETCHING PROXY WALLET…');
+      if (!proxy && eoa) {
+        setTcStatus('working', 'Fetching proxy wallet from Polymarket…');
         try {
           const r = await fetch('https://gamma-api.polymarket.com/public-profile?address=' + eoa);
           if (r.ok) {
@@ -2711,88 +2998,167 @@
             proxy = prof.proxyWallet || prof.proxy_wallet || '';
           }
         } catch {}
-        if (!proxy) proxy = eoa; // fall back to EOA if no proxy registered
       }
+      if (!proxy && eoa) proxy = eoa; // fallback for sigType 0
+      if (!proxy && !hasPasted) { setTcStatus('err', 'Could not resolve proxy wallet'); return; }
 
-      // 2. Build EIP-712 ClobAuth message and sign with EOA key
-      setTcStatus('off', 'SIGNING EIP-712…');
-      const timestamp = Math.floor(Date.now() / 1000).toString();
-      const domain = { name: 'ClobAuthDomain', version: '1', chainId: 137 };
-      const types = {
-        ClobAuth: [
-          { name: 'address',   type: 'address' },
-          { name: 'timestamp', type: 'string'  },
-          { name: 'nonce',     type: 'uint256' },
-          { name: 'message',   type: 'string'  }
-        ]
-      };
-      const value = {
-        address: eoa,
-        timestamp,
-        nonce: 0,
-        message: 'This message attests that I control the given wallet'
-      };
-      const signature = await wallet.signTypedData(domain, types, value);
+      let apiKey = pastedKey, apiSecret = pastedSecret, apiPass = pastedPass;
 
-      // 3. POST /auth/api-key (fallback to GET /auth/derive-api-key)
-      const l1Headers = {
-        'POLY_ADDRESS': eoa,
-        'POLY_SIGNATURE': signature,
-        'POLY_TIMESTAMP': timestamp,
-        'POLY_NONCE': '0'
-      };
-      setTcStatus('off', 'CREATING API KEY…');
-      let creds = null;
-      try {
-        const r = await fetch('https://clob.polymarket.com/auth/api-key', { method: 'POST', headers: l1Headers });
-        if (r.ok) creds = await r.json();
-      } catch {}
-      if (!creds) {
-        setTcStatus('off', 'DERIVING EXISTING KEY…');
+      // 2. DERIVE mode — sign EIP-712 + hit CLOB
+      if (!hasPasted && hasKey) {
+        setTcStatus('working', 'Signing EIP-712 handshake…');
+        timestamp = Math.floor(Date.now() / 1000).toString();
+        const domain = { name: 'ClobAuthDomain', version: '1', chainId: 137 };
+        const types = {
+          ClobAuth: [
+            { name: 'address',   type: 'address' },
+            { name: 'timestamp', type: 'string'  },
+            { name: 'nonce',     type: 'uint256' },
+            { name: 'message',   type: 'string'  }
+          ]
+        };
+        const value = {
+          address: eoa,
+          timestamp,
+          nonce: 0,
+          message: 'This message attests that I control the given wallet'
+        };
+        signature = await wallet.signTypedData(domain, types, value);
+
+        const l1Headers = {
+          'POLY_ADDRESS': eoa,
+          'POLY_SIGNATURE': signature,
+          'POLY_TIMESTAMP': timestamp,
+          'POLY_NONCE': '0'
+        };
+        setTcStatus('working', 'Creating API key…');
+        let creds = null;
         try {
-          const r = await fetch('https://clob.polymarket.com/auth/derive-api-key', { method: 'GET', headers: l1Headers });
+          const r = await fetch('https://clob.polymarket.com/auth/api-key', { method: 'POST', headers: l1Headers });
           if (r.ok) creds = await r.json();
         } catch {}
+        if (!creds) {
+          setTcStatus('working', 'Deriving existing key…');
+          try {
+            const r = await fetch('https://clob.polymarket.com/auth/derive-api-key', { method: 'GET', headers: l1Headers });
+            if (r.ok) creds = await r.json();
+          } catch {}
+        }
+        if (!creds || !(creds.apiKey || creds.api_key)) {
+          setTcStatus('err', 'CLOB rejected — likely CORS. Paste existing API creds instead.');
+          return;
+        }
+        apiKey    = creds.apiKey || creds.api_key;
+        apiSecret = creds.secret;
+        apiPass   = creds.passphrase;
       }
-      if (!creds || !(creds.apiKey || creds.api_key)) {
-        setTcStatus('off', 'CLOB REJECTED — CHECK CORS/KEY');
+
+      // 3. Validate we have a complete set
+      if (!apiKey || !apiSecret || !apiPass) {
+        setTcStatus('err', 'Missing API credentials');
         return;
       }
-      const apiKey = creds.apiKey || creds.api_key;
-      const apiSecret = creds.secret;
-      const apiPass = creds.passphrase;
 
-      // 4. Persist
+      // 4. Test: ping /auth/api-keys with L2 HMAC to confirm creds work
+      setTcStatus('working', 'Verifying credentials…');
+      const ok = await verifyClobCreds(proxy || eoa, apiKey, apiSecret, apiPass);
+      if (!ok) {
+        setTcStatus('err', 'Credentials failed verification');
+        return;
+      }
+
+      if (testOnly) {
+        setTcStatus('ok', 'TEST OK · Creds valid · ' + shortAddr(proxy || eoa));
+        return;
+      }
+
+      // 5. Persist
       const toSave = {
-        privKey: hex,     // stored locally only; agent uses it server-side
-        signer: eoa,
-        proxy: proxy,
-        funder: proxy,
+        privKey: hasKey ? (pk.startsWith('0x') ? pk : '0x' + pk) : '',
+        signer: eoa || '',
+        proxy: proxy || '',
+        funder: funderOverride || proxy || eoa || '',
         sigType: 1,
         apiKey, apiSecret, apiPass,
         savedAt: Date.now()
       };
       saveTradingCreds(toSave);
       updateTradeBtnState();
-      setTcStatus('on', 'CONNECTED · ' + shortAddr(proxy));
+      setTcStatus('ok', 'CONNECTED · ' + shortAddr(proxy || eoa));
       try { refreshCash(); } catch {}
-      if (typeof pushAgentMessageSystem === 'function') pushAgentMessageSystem('Polymarket connected: ' + shortAddr(proxy));
-      setTimeout(() => { if (closeCb) closeCb(); }, 900);
+      if (typeof pushAgentMessageSystem === 'function') pushAgentMessageSystem('Polymarket connected: ' + shortAddr(proxy || eoa));
+      setTimeout(() => { if (closeCb) closeCb(); }, 800);
     } catch (e) {
       console.warn('connectPolymarket failed', e);
-      setTcStatus('off', 'ERROR: ' + ((e && e.message) || 'unknown'));
+      setTcStatus('err', 'Error: ' + ((e && e.message) || 'unknown'));
     }
+  }
+
+  // L2 HMAC signer + creds verification
+  async function verifyClobCreds(address, apiKey, secret, pass) {
+    try {
+      const ts = Math.floor(Date.now() / 1000).toString();
+      const method = 'GET';
+      const path = '/auth/api-keys';
+      const msg = ts + method + path;
+      const sig = await hmacSha256B64Url(secret, msg);
+      const r = await fetch('https://clob.polymarket.com' + path, {
+        method,
+        headers: {
+          'POLY_ADDRESS': address,
+          'POLY_SIGNATURE': sig,
+          'POLY_TIMESTAMP': ts,
+          'POLY_API_KEY': apiKey,
+          'POLY_PASSPHRASE': pass
+        }
+      });
+      return r.ok;
+    } catch (e) { console.warn('verify failed', e); return false; }
+  }
+  async function hmacSha256B64Url(secretB64Url, msg) {
+    // Polymarket's secret is base64url — decode to raw bytes, then HMAC-SHA256, then base64url encode
+    const b64 = secretB64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const pad = b64.length % 4 === 0 ? '' : '='.repeat(4 - (b64.length % 4));
+    const raw = atob(b64 + pad);
+    const bytes = new Uint8Array(raw.length);
+    for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    const key = await crypto.subtle.importKey('raw', bytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const sigBuf = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(msg));
+    let b64out = btoa(String.fromCharCode(...new Uint8Array(sigBuf)));
+    return b64out.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
 
   // ================================================================
   // NEWS — rss2json single source
   // ================================================================
+  // Multiple feeds per category. Each rss2json call returns up to 10 items;
+  // we merge + dedupe + sort by date so each tab shows 20+ headlines.
   const NEWS_FEEDS = {
-    politics:    { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml', src: 'NYT' },
-    crypto:      { url: 'https://cointelegraph.com/rss',                              src: 'CoinTelegraph' },
-    sports:      { url: 'https://www.espn.com/espn/rss/news',                         src: 'ESPN' },
-    culture:     { url: 'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml', src: 'BBC' },
-    geopolitics: { url: 'https://feeds.bbci.co.uk/news/world/rss.xml',                src: 'BBC World' }
+    politics: [
+      { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml',     src: 'NYT' },
+      { url: 'https://feeds.bbci.co.uk/news/politics/rss.xml',                src: 'BBC' },
+      { url: 'https://feeds.washingtonpost.com/rss/politics',                 src: 'WaPo' }
+    ],
+    crypto: [
+      { url: 'https://cointelegraph.com/rss',                                 src: 'CoinTelegraph' },
+      { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/',               src: 'CoinDesk' },
+      { url: 'https://decrypt.co/feed',                                       src: 'Decrypt' }
+    ],
+    sports: [
+      { url: 'https://www.espn.com/espn/rss/news',                            src: 'ESPN' },
+      { url: 'https://feeds.bbci.co.uk/sport/rss.xml',                        src: 'BBC Sport' },
+      { url: 'https://www.cbssports.com/rss/headlines/',                      src: 'CBS' }
+    ],
+    culture: [
+      { url: 'https://feeds.bbci.co.uk/news/entertainment_and_arts/rss.xml',  src: 'BBC' },
+      { url: 'https://www.rollingstone.com/feed/',                            src: 'Rolling Stone' },
+      { url: 'https://variety.com/feed/',                                     src: 'Variety' }
+    ],
+    geopolitics: [
+      { url: 'https://feeds.bbci.co.uk/news/world/rss.xml',                   src: 'BBC World' },
+      { url: 'https://www.aljazeera.com/xml/rss/all.xml',                     src: 'Al Jazeera' },
+      { url: 'https://www.reuters.com/world/rss',                             src: 'Reuters' }
+    ]
   };
   let newsCat = 'politics';
   const NEWS_CACHE = {};
@@ -2810,22 +3176,42 @@
   }
   async function loadNews() {
     for (const cat of Object.keys(NEWS_FEEDS)) {
-      try {
-        const feed = NEWS_FEEDS[cat];
-        const url = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url);
-        const r = await fetch(url);
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const data = await r.json();
-        NEWS_CACHE[cat] = (data.items || []).slice(0, 18).map(it => {
-          // Try hard to extract an image: thumbnail → enclosure → first <img> in content
-          let img = it.thumbnail || (it.enclosure && it.enclosure.link) || '';
-          if (!img && (it.content || it.description)) {
-            const m = (it.content || it.description).match(/<img[^>]+src=["']([^"']+)/i);
-            if (m) img = m[1];
-          }
-          return { title: it.title, link: it.link, pubDate: it.pubDate, src: feed.src, img };
-        });
-      } catch (e) { NEWS_CACHE[cat] = NEWS_CACHE[cat] || []; }
+      const feeds = NEWS_FEEDS[cat];
+      const all = [];
+      // Fire all feeds for this category in parallel
+      const results = await Promise.all(feeds.map(async (feed) => {
+        try {
+          const url = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url);
+          const r = await fetch(url);
+          if (!r.ok) return [];
+          const data = await r.json();
+          return (data.items || []).map(it => {
+            let img = it.thumbnail || (it.enclosure && it.enclosure.link) || '';
+            if (!img && (it.content || it.description)) {
+              const m = (it.content || it.description).match(/<img[^>]+src=["']([^"']+)/i);
+              if (m) img = m[1];
+            }
+            return { title: it.title, link: it.link, pubDate: it.pubDate, src: feed.src, img };
+          });
+        } catch { return []; }
+      }));
+      for (const arr of results) all.push(...arr);
+      // Dedupe by normalized title
+      const seen = new Set();
+      const deduped = [];
+      for (const it of all) {
+        const k = (it.title || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        if (!k || seen.has(k)) continue;
+        seen.add(k);
+        deduped.push(it);
+      }
+      // Sort newest first
+      deduped.sort((a, b) => {
+        const da = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+        const db = b.pubDate ? new Date(b.pubDate).getTime() : 0;
+        return db - da;
+      });
+      NEWS_CACHE[cat] = deduped.slice(0, 28);
     }
     renderNews();
   }
