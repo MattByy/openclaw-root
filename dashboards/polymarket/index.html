@@ -1191,13 +1191,31 @@
   function handleFrame(frame) {
     if (frame.event === 'connect.challenge') {
       // Send handshake
-      // Mirror Control UI connect frame exactly. id must be the constant "openclaw-control-ui".
+      // Mirror Control UI connect frame exactly. Server has dangerouslyDisableDeviceAuth: true
+      // so the device signature isn't verified — we just need the fields present for schema.
+      var hex32 = function(){
+        if (crypto && crypto.getRandomValues) {
+          return Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b=>b.toString(16).padStart(2,'0')).join('');
+        }
+        return String(Date.now()) + Math.random().toString(36).slice(2);
+      };
+      var uuid = function(){
+        if (crypto && crypto.randomUUID) return crypto.randomUUID();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+          var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8); return v.toString(16);
+        });
+      };
+      var deviceId = localStorage.getItem('claw_device_id');
+      if (!deviceId) { deviceId = hex32(); try { localStorage.setItem('claw_device_id', deviceId); } catch(_) {} }
+      var instanceId = localStorage.getItem('claw_instance_id');
+      if (!instanceId) { instanceId = uuid(); try { localStorage.setItem('claw_instance_id', instanceId); } catch(_) {} }
       gwSend({
         type: 'req', id: nextId(), method: 'connect',
         params: {
           minProtocol: 3, maxProtocol: 3,
           client: {
             id: 'openclaw-control-ui',
+            instanceId: instanceId,
             version: 'control-ui',
             platform: (navigator && navigator.platform) || 'Win32',
             mode: 'webchat'
@@ -1206,11 +1224,13 @@
           scopes: ['operator.admin','operator.read','operator.write','operator.approvals','operator.pairing'],
           caps: ['tool-events'],
           auth: { token: GW_TOKEN },
-          device: { id: (localStorage.getItem('claw_device_id') || (function(){
-            var d = (crypto.getRandomValues ? Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b=>b.toString(16).padStart(2,'0')).join('') : String(Date.now()));
-            try { localStorage.setItem('claw_device_id', d); } catch(_) {}
-            return d;
-          })()) },
+          device: {
+            id: deviceId,
+            nonce: uuid(),
+            publicKey: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            signature: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+            signedAt: Date.now()
+          },
           locale: (navigator && navigator.language) || 'en-US',
           userAgent: (navigator && navigator.userAgent) || 'clawmode-dashboard/1.0'
         }
