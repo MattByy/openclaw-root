@@ -1191,17 +1191,28 @@
   function handleFrame(frame) {
     if (frame.event === 'connect.challenge') {
       // Send handshake
+      // Mirror Control UI connect frame exactly. id must be the constant "openclaw-control-ui".
       gwSend({
         type: 'req', id: nextId(), method: 'connect',
         params: {
           minProtocol: 3, maxProtocol: 3,
-          client: { id: 'dashboard-polymarket', version: '1.0', platform: 'web', mode: 'operator' },
+          client: {
+            id: 'openclaw-control-ui',
+            version: 'control-ui',
+            platform: (navigator && navigator.platform) || 'Win32',
+            mode: 'webchat'
+          },
           role: 'operator',
-          scopes: ['operator.read','operator.write'],
-          caps: [], commands: [], permissions: {},
+          scopes: ['operator.admin','operator.read','operator.write','operator.approvals','operator.pairing'],
+          caps: ['tool-events'],
           auth: { token: GW_TOKEN },
-          locale: 'en-US',
-          userAgent: 'clawmode-dashboard/1.0'
+          device: { id: (localStorage.getItem('claw_device_id') || (function(){
+            var d = (crypto.getRandomValues ? Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b=>b.toString(16).padStart(2,'0')).join('') : String(Date.now()));
+            try { localStorage.setItem('claw_device_id', d); } catch(_) {}
+            return d;
+          })()) },
+          locale: (navigator && navigator.language) || 'en-US',
+          userAgent: (navigator && navigator.userAgent) || 'clawmode-dashboard/1.0'
         }
       });
       return;
