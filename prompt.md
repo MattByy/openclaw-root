@@ -1,153 +1,402 @@
-# Polymarket Dashboard — Feature Spec
+# Polymarket Connection Modal — Redesign Prompt
 
-## Data sources
+## Context
 
-| Source | URL | Auth | What it gives us |
-|--------|-----|------|------------------|
-| Positions | `GET https://data-api.polymarket.com/positions?user={addr}` | None | Open positions with P&L, avg price, current price |
-| Trades | `GET https://data-api.polymarket.com/trades?user={addr}` | None | Trade history with timestamps, sides, prices |
-| Activity | `GET https://data-api.polymarket.com/activity?user={addr}` | None | On-chain events: trades, redeems, splits, merges |
-| Portfolio value | `GET https://data-api.polymarket.com/value?user={addr}` | None | Total portfolio value |
-| Spread | `GET https://clob.polymarket.com/spread?token_id={id}` | None | Current bid/ask spread per token |
-| Midpoint | `GET https://clob.polymarket.com/midpoint?token_id={id}` | None | Current mid price per token |
-| BTC live price | `wss://stream.binance.com:9443/ws/btcusdt@kline_1s` | None | Real-time BTC/USDT from Binance |
-| Market data | `GET https://gamma-api.polymarket.com/markets?slug={slug}` | None | Market metadata, token IDs |
+We have a Polymarket HUD dashboard (`dashboards/polymarket/index.html`) — a single-file HTML app with a dark cyber aesthetic (Orbitron + JetBrains Mono fonts, cyan `#00e5ff` accent, dark backgrounds `#04060b` / `#07090f`). It currently has a "Connect Polymarket" modal that dumps all fields at once (private key, proxy wallet, funder, API key, secret, passphrase) regardless of what the user actually wants to do. This is confusing and intimidating.
 
-User provides: **Polygon wallet address only.** No private keys for the dashboard.
+We need to redesign this modal into a **progressive, step-based connection flow** that adapts based on what the user wants to do and what type of Polymarket wallet they have.
 
+---
 
-## Layout
+## What Needs to Change
 
+### Current State (bad)
+The modal shows everything at once:
+- Private Key field
+- Proxy Wallet field
+- Funder field
+- API Key / Secret / Passphrase fields
+- A single "Connect" button
+- Hardcoded to `SIGTYPE 1 (PROXY)` in the header
+
+The user has no idea what they need to fill in, what's optional, or what any of this means.
+
+### Target State (good)
+A **multi-step wizard** inside the same modal that:
+1. Asks what the user wants to do (their intent)
+2. Collects only the credentials needed for that intent
+3. Auto-detects their wallet type when possible
+4. Validates and connects
+
+---
+
+## Step-by-Step Flow Design
+
+### Step 1: Choose Your Mode
+
+Show 3 clickable cards/options:
+
+| Mode | Icon | Description | What it unlocks |
+|------|------|-------------|-----------------|
+| **Watch Only** | 👁 (eye icon) | "Track any Polymarket wallet — positions, P&L, history. No keys needed." | Portfolio tracking, position monitoring, trade history |
+| **Read + API** | 🔑 (key icon) | "Connect your CLOB API credentials to read your private data (orders, fills). No trading." | Everything above + order book access, personal order history, fills |
+| **Full Trading** | ⚡ (bolt icon) | "Place and manage orders programmatically. Requires your private key." | Everything above + place/cancel orders, execute trades |
+
+**Behavior:**
+- Clicking a card advances to Step 2
+- The selected mode determines which fields appear in the next steps
+- Show a subtle "You can upgrade your connection mode later" note
+
+---
+
+### Step 2: Credentials (adapts based on mode)
+
+#### If "Watch Only" selected:
+Show a single field:
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│ TOPBAR: Logo | BTC: $97,241 ▲0.3% | 5min window: 02:34 left | Status: Live │
-├───────────────────────────────────────┬─────────────────────────┤
-│                                       │                         │
-│  STATS ROW (6 cards):                 │  AGENT STATUS           │
-│  Portfolio | Today P&L | All-time P&L │  Strategy: BTC Straddle │
-│  Win Rate  | Trades    | Spread Cost  │  Last: Opened @ 20:14   │
-│                                       │  Next: Waiting for <$0.38│
-│  ─────────────────────────────────    │                         │
-│                                       │  ACTIVITY FEED          │
-│  P&L CHART (cumulative, SVG)          │  Agent messages +       │
-│  Timeframe tabs: 1H | 24H | 7D | ALL │  on-chain activity      │
-│                                       │  scrollable             │
-│  ─────────────────────────────────    │                         │
-│                                       │                         │
-│  OPEN POSITIONS (cards grid)          │                         │
-│  Market | Side | Entry | Current | PnL│                         │
-│                                       │                         │
-│  ─────────────────────────────────    │                         │
-│                                       │                         │
-│  RECENT TRADES (table)                │                         │
-│  Time | Market | Side | Price | Result│                         │
-│                                       │                         │
-└───────────────────────────────────────┴─────────────────────────┘
+POLYMARKET WALLET ADDRESS
+[0x... paste the address you want to track]
+Helper text: "Find this on any Polymarket profile page or in your account settings"
+```
+That's it. One field. Hit Connect → done. We use the Gamma API (no auth needed) + Data API to pull public position data for that address.
+
+#### If "Read + API" selected:
+Show the CLOB API credentials section:
+```
+API KEY
+[Polymarket CLOB API key]
+
+API SECRET                    API PASSPHRASE
+[base64url secret]            [passphrase]
+```
+With a helper note:
+> "Don't have these? You can generate them from your private key. [Switch to Full Trading mode] to auto-derive them."
+
+Also ask for their wallet address (for the funder/trading address):
+```
+TRADING ADDRESS
+[0x... your Polymarket profile address]
+Helper text: "This is the address shown on polymarket.com — NOT necessarily your MetaMask address"
 ```
 
+#### If "Full Trading" selected:
+Show a **two-part progressive form**:
 
-## Features (what each section does)
+**Part A — Private Key**
+```
+PRIVATE KEY
+[Paste your 0x... Polygon EOA private key]
+Helper text: "64 hex chars. Go to Polymarket → Cash → ⋯ → Export Private Key"
+```
 
-### 1. BTC Live Price Ticker (topbar)
-- Connect to Binance WebSocket for real-time BTC/USDT
-- Show current price, 5min % change
-- Reconnect automatically on disconnect
-- Mini sparkline (last 60 data points) using SVG path
+As soon as the user pastes a valid private key (64 hex chars, with or without 0x prefix), **automatically run wallet type detection** (see Detection Logic below) and show the result:
 
-### 2. 5-Minute Market Window Timer (topbar)
-- Calculate current window: `window_ts = now - (now % 300)`
-- Show countdown to window close
-- When window closes, auto-advance to next
-- Color code: green (>3min left), yellow (1-3min), red (<1min)
+**Part B — Auto-detected Configuration** (appears after key is pasted)
 
-### 3. Stats Row (6 cards)
-- **Portfolio Value**: from `/value` endpoint
-- **Today's P&L**: filter trades by today's date, sum profits/losses
-- **All-time P&L**: sum of `cashPnl` across all positions
-- **Win Rate (today)**: wins/losses from today's resolved positions
-- **Trades Today**: count of trades with today's timestamp
-- **Straddle Cost**: current combined cost of UP + DOWN tokens for active 5min market
-  - Fetch spread for both tokens via CLOB API
-  - If combined ask < $1.00, show in green (edge exists)
-  - If combined ask >= $1.00, show in red (no edge)
+Show a status card:
+```
+✓ WALLET DETECTED
+  Type: EOA (Signature Type 0)
+  Signing Address: 0xAbC1...
+  Funder Address: 0xAbC1... (same as signing — no proxy)
+  
+  [API credentials will be auto-derived on connect]
+```
 
-### 4. P&L Chart
-- SVG-based line chart, no external libraries
-- X axis: time, Y axis: cumulative P&L in dollars
-- Built from trade history data
-- Tab switcher: 1H, 24H, 7D, ALL
-- Animated gradient fill under the line
-- Current value dot with pulse animation
+OR for proxy/Safe users:
+```
+✓ WALLET DETECTED
+  Type: Magic/Email Proxy (Signature Type 1)
+  Signing Address (EOA): 0xAbC1...
+  Proxy Wallet (Funder): 0xDeF2...
+  
+  [API credentials will be auto-derived on connect]
+```
 
-### 5. Open Positions
-- Grid of cards (2 columns)
-- Each card shows: market title, outcome (Yes/No), shares held, avg entry price, current price, current value, unrealized P&L ($), unrealized P&L (%)
-- Color the P&L: green for profit, red for loss
-- Sorted by current value descending
+OR for Safe users:
+```
+✓ WALLET DETECTED
+  Type: Browser Wallet Safe (Signature Type 2)
+  Signing Address (EOA): 0xAbC1...
+  Safe Wallet (Funder): 0x7890...
+  
+  [API credentials will be auto-derived on connect]
+```
 
-### 6. Recent Trades
-- Table with columns: Time, Market, Outcome, Side (BUY/SELL badge), Price, Size, Result (WON/LOST/OPEN badge), P&L
-- Last 20 trades
-- Color-coded badges
+If detection fails or the user wants to override, show a collapsible "Advanced: Override detected settings" section with manual fields for:
+- Signature Type dropdown (0 = EOA, 1 = Magic Proxy, 2 = Gnosis Safe)
+- Funder Address (manual override)
+- API Key / Secret / Passphrase (manual override, if they already have these)
 
-### 7. Agent Status Panel (right sidebar, top)
-- Compact card showing:
-  - Strategy name (e.g. "BTC 5min Straddle")
-  - Current state (Monitoring / Entering / Holding / Cooldown)
-  - Last action with timestamp
-  - Next action / what it's waiting for
-- Updated via `window.updateAgentStatus(status)` exposed on window
+---
 
-### 8. Activity Feed (right sidebar, bottom)
-- Scrollable list of events
-- Mix of on-chain activity (from API) and agent messages (pushed via JS)
-- Each item: icon, type, description, timestamp
-- Types: TRADE (green/red), REDEEM (gold), agent message (cyan)
-- `window.addFeedItem(message, type)` for agent to push updates
+### Step 3: Connect & Validate
 
+Show a "Connect" button that:
+1. For **Watch Only**: validates the address format, pings the Gamma API for that address, shows positions if found
+2. For **Read + API**: validates API creds by calling the CLOB API's health/auth endpoint, shows connection status
+3. For **Full Trading**: 
+   - Derives API credentials from the private key using `ethers.js` + EIP-712 signing
+   - Tests the connection
+   - Checks token allowances (warns if USDC/CTF approvals not set for EOA users)
+   - Shows final connection status with balance
 
-## Exposed functions (for OpenClaw agent via canvas eval)
+**On success**, show:
+```
+✓ CONNECTED — [mode name]
+  Address: 0x...
+  USDC Balance: $XXX.XX
+  Open Positions: N
+```
+
+**On failure**, show specific error messages:
+- "$0 balance? Your funder address might be wrong. The funder should be the address shown on your Polymarket profile, not your MetaMask address."
+- "API credentials invalid. Try re-deriving them or switch to Full Trading mode to auto-generate."
+- "Allowances not set. You need to approve the Exchange contract before trading. [Make a small trade on polymarket.com first] or [Set allowances programmatically]."
+
+---
+
+## Wallet Type Auto-Detection Logic
+
+When the user pastes a private key, derive the EOA address using ethers.js, then check two smart contract factories on Polygon to determine the wallet type:
 
 ```javascript
-// Push a message to the activity feed
-window.addFeedItem(message: string, type: 'success'|'error'|'')
+import { ethers } from 'ethers';
 
-// Force refresh all data
-window.refreshDashboard()
+const POLYGON_RPC = 'https://polygon-rpc.com'; // or our own RPC
+const provider = new ethers.JsonRpcProvider(POLYGON_RPC);
 
-// Update wallet address
-window.updateWallet(address: string, proxy?: string)
+// Factory contract addresses on Polygon
+const PROXY_FACTORY = '0xaB45c5A4B0c941a2F231C04C3f49182e1A254052';
+const SAFE_FACTORY = '0xaacFeEa03eb1561C4e67d661e40682Bd20E3541b';
 
-// Update agent status panel
-window.updateAgentStatus({
-  strategy: string,     // "BTC 5min Straddle"
-  state: string,        // "Monitoring" | "Entering" | "Holding" | "Cooldown"
-  lastAction: string,   // "Opened straddle @ $0.47/$0.51"
-  lastActionTime: string, // "20:14:32"
-  nextAction: string    // "Waiting for spread < $0.38"
-})
+// Init code hashes (from Polymarket's contracts — verify these from their SDK source)
+const PROXY_INIT_CODE_HASH = '...'; // Get from @polymarket/clob-client source or magic-proxy-builder-example
+const SAFE_INIT_CODE_HASH = '...';  // Get from builder-relayer-client derive.ts
+
+async function detectWalletType(privateKey) {
+  const wallet = new ethers.Wallet(privateKey);
+  const eoaAddress = wallet.address;
+  
+  // 1. Derive the Proxy Wallet address (Type 1 — Magic/Email)
+  const proxySalt = ethers.keccak256(ethers.solidityPacked(['address'], [eoaAddress]));
+  const proxyAddress = ethers.getCreate2Address(PROXY_FACTORY, proxySalt, PROXY_INIT_CODE_HASH);
+  
+  // 2. Derive the Safe Wallet address (Type 2 — Browser wallet)
+  const safeSalt = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(['address'], [eoaAddress]));
+  const safeAddress = ethers.getCreate2Address(SAFE_FACTORY, safeSalt, SAFE_INIT_CODE_HASH);
+  
+  // 3. Check which one has deployed code
+  const [proxyCode, safeCode] = await Promise.all([
+    provider.getCode(proxyAddress),
+    provider.getCode(safeAddress),
+  ]);
+  
+  if (proxyCode !== '0x') {
+    return {
+      signatureType: 1,
+      label: 'Magic/Email Proxy',
+      signingAddress: eoaAddress,
+      funderAddress: proxyAddress,
+    };
+  }
+  
+  if (safeCode !== '0x') {
+    return {
+      signatureType: 2,
+      label: 'Browser Wallet (Gnosis Safe)',
+      signingAddress: eoaAddress,
+      funderAddress: safeAddress,
+    };
+  }
+  
+  // Neither proxy exists — pure EOA
+  return {
+    signatureType: 0,
+    label: 'EOA (Direct Wallet)',
+    signingAddress: eoaAddress,
+    funderAddress: eoaAddress, // same address
+  };
+}
 ```
 
+**Important notes for implementation:**
+- The `PROXY_INIT_CODE_HASH` and `SAFE_INIT_CODE_HASH` values need to be extracted from Polymarket's SDK source code. Check:
+  - `@polymarket/clob-client` → look for CREATE2 derivation constants
+  - `@polymarket/builder-relayer-client` → `src/builder/derive.ts` has `deriveSafe()`
+  - The `magic-proxy-builder-example` repo on GitHub has `deriveProxyAddress()` with the exact constants
+- The RPC call (`provider.getCode()`) hits Polygon mainnet — use a reliable RPC (Alchemy, QuickNode, or our Hetzner node if we have one)
+- Cache the detection result in localStorage alongside the credentials so we don't re-check on every page load
 
-## Auto-refresh intervals
+---
 
-| Data | Interval | Method |
-|------|----------|--------|
-| BTC price | Real-time | WebSocket |
-| 5min countdown | Every second | `setInterval` |
-| Positions | 30 seconds | Fetch |
-| Trades | 30 seconds | Fetch |
-| Activity | 60 seconds | Fetch |
-| Portfolio value | 60 seconds | Fetch |
-| Spread/straddle cost | 10 seconds | Fetch |
+## API Credential Derivation (Full Trading Mode)
 
+When auto-deriving CLOB API credentials from the private key:
 
-## What NOT to build
+```javascript
+// Using the py-clob-client pattern, but in JS:
+// The CLOB client signs an EIP-712 typed message to derive/create API keys
 
-- No whale tracking or copy trading
-- No leaderboard
-- No orderbook depth visualization
-- No AI chat interface (OpenClaw WebChat handles that)
-- No multi-wallet support (one wallet per container)
-- No authentication (container is already auth-gated by the OpenClaw gateway)
-- No localStorage for critical data (container is ephemeral)
+const CLOB_HOST = 'https://clob.polymarket.com';
+
+async function deriveApiCredentials(privateKey) {
+  const wallet = new ethers.Wallet(privateKey);
+  
+  // 1. Get server timestamp and nonce
+  const timeRes = await fetch(`${CLOB_HOST}/time`);
+  const { timestamp } = await timeRes.json();
+  const nonce = 0; // First derivation uses nonce 0
+  
+  // 2. Sign EIP-712 message
+  const domain = {
+    name: 'ClobAuthDomain',
+    version: '1',
+    chainId: 137,
+  };
+  const types = {
+    ClobAuth: [
+      { name: 'address', type: 'address' },
+      { name: 'timestamp', type: 'string' },
+      { name: 'nonce', type: 'uint256' },
+      { name: 'message', type: 'string' },
+    ],
+  };
+  const value = {
+    address: wallet.address,
+    timestamp: timestamp.toString(),
+    nonce: nonce,
+    message: 'This message attests that I control the given wallet',
+  };
+  
+  const signature = await wallet.signTypedData(domain, types, value);
+  
+  // 3. Call derive endpoint
+  const deriveRes = await fetch(`${CLOB_HOST}/auth/derive-api-key`, {
+    method: 'GET',
+    headers: {
+      'POLY_ADDRESS': wallet.address,
+      'POLY_SIGNATURE': signature,
+      'POLY_TIMESTAMP': timestamp.toString(),
+      'POLY_NONCE': nonce.toString(),
+    },
+  });
+  
+  if (!deriveRes.ok) {
+    // If derive fails, try create
+    const createRes = await fetch(`${CLOB_HOST}/auth/api-key`, {
+      method: 'POST',
+      headers: {
+        'POLY_ADDRESS': wallet.address,
+        'POLY_SIGNATURE': signature,
+        'POLY_TIMESTAMP': timestamp.toString(),
+        'POLY_NONCE': nonce.toString(),
+      },
+    });
+    return await createRes.json(); // { apiKey, secret, passphrase }
+  }
+  
+  return await deriveRes.json(); // { apiKey, secret, passphrase }
+}
+```
+
+**Note:** The exact header names and endpoint paths should be verified against the current Polymarket CLOB API docs. The pattern above is based on the `py-clob-client` and `@polymarket/clob-client` SDK source code. If the JS SDK (`@polymarket/clob-client`) is importable via CDN, prefer using `ClobClient.createOrDeriveApiKey()` directly instead of reimplementing.
+
+---
+
+## Data Storage
+
+All credentials are stored in `localStorage` under a namespaced key:
+
+```javascript
+const STORAGE_KEY = 'polymarket_connection';
+
+// Structure:
+{
+  mode: 'watch' | 'read' | 'trade',
+  address: '0x...',           // The wallet address being tracked/used
+  signatureType: 0 | 1 | 2,  // Only for 'trade' mode
+  funderAddress: '0x...',     // Only for 'trade' mode (may differ from signing address)
+  apiKey: '...',              // Only for 'read' and 'trade' modes
+  apiSecret: '...',           // Only for 'read' and 'trade' modes
+  apiPassphrase: '...',       // Only for 'read' and 'trade' modes
+  privateKey: '...',          // Only for 'trade' mode — ENCRYPTED or stored carefully
+  connectedAt: '2026-04-12T...',
+}
+```
+
+**Security notes:**
+- Private keys in localStorage are a known risk. Display a warning: "Use a burner EOA funded just for Polymarket trading. Never paste your main wallet's key."
+- Consider encrypting the private key with a user-provided PIN/password before storing
+- Only `clob.polymarket.com` and `gamma-api.polymarket.com` should ever receive these values
+
+---
+
+## UI/UX Specs
+
+### Keep the existing design system:
+- Dark background: `--bg0: #04060b`, `--bg1: #07090f`, `--bg2: #0a0d14`
+- Accent: `--accent: #00e5ff` (cyan)
+- Fonts: Orbitron (headings), JetBrains Mono (code/values), Outfit (body text)
+- Panel borders: `rgba(0, 229, 255, 0.18)`
+- Input fields: dark backgrounds with subtle cyan borders on focus
+
+### Step indicator:
+Show a minimal step progress at the top of the modal:
+```
+[1 ● ──── 2 ○ ──── 3 ○]  or  [MODE → CREDENTIALS → CONNECT]
+```
+
+### Transitions:
+- Steps slide left/right with a subtle CSS transition (200-300ms)
+- Show a back arrow/button to return to previous step
+- The modal should not change size dramatically between steps — keep a consistent height or animate smoothly
+
+### Mode cards (Step 1):
+- Each card has a subtle border that glows cyan on hover
+- Selected card gets a solid cyan border + checkmark
+- Cards are stacked vertically on mobile, horizontal on wider screens
+
+### Detected wallet card (Step 2, Full Trading):
+- Show as a success-styled card with a green/cyan checkmark icon
+- Animate in after detection completes (show a brief loading spinner while checking Polygon)
+- If detection takes >3 seconds, show "Checking wallet type on Polygon..."
+
+---
+
+## Files to Modify
+
+- `dashboards/polymarket/index.html` — The main file. The connection modal HTML/CSS/JS is all inline in this file.
+- `dashboards/polymarket/connection.md` — Reference doc for connection logic (update to match new flow)
+- Potentially create a `connection.js` module if the logic gets too large for inline `<script>` tags
+
+---
+
+## Edge Cases to Handle
+
+1. **User pastes a private key that has never traded on Polymarket** — No proxy/Safe will exist. Detect as EOA (type 0), but warn: "This wallet hasn't traded on Polymarket yet. You may need to set token allowances before placing orders."
+
+2. **User pastes API credentials that don't match their private key** — If both private key and manual API creds are provided, validate that the API key belongs to the same wallet. If mismatch, warn.
+
+3. **User switches modes after connecting** — Allow upgrading (Watch → Read → Trade) without disconnecting. Downgrading should prompt confirmation since it removes stored credentials.
+
+4. **Invalid private key format** — Validate immediately on paste: must be 64 hex characters (with or without `0x` prefix). Show inline error: "Invalid key format — expected 64 hex characters."
+
+5. **RPC failures during detection** — If the Polygon RPC call fails, fall back to showing the manual signature type selector instead of auto-detection. Show: "Couldn't auto-detect wallet type. Please select manually."
+
+6. **User already connected** — When reopening the modal, show current connection status with an option to reconnect, change mode, or disconnect.
+
+---
+
+## Summary of the Three Modes
+
+| | Watch Only | Read + API | Full Trading |
+|---|---|---|---|
+| **User provides** | Wallet address | API Key + Secret + Passphrase + Trading address | Private key (everything else auto-derived) |
+| **APIs used** | Gamma (public) + Data API | Gamma + CLOB (authenticated read) + Data | Gamma + CLOB (full) + Data |
+| **Can see positions** | ✓ | ✓ | ✓ |
+| **Can see order book** | ✓ (public) | ✓ (personal orders) | ✓ (personal orders) |
+| **Can place orders** | ✗ | ✗ | ✓ |
+| **Can cancel orders** | ✗ | ✗ | ✓ |
+| **Needs private key** | ✗ | ✗ | ✓ |
+| **Security risk** | None | Low (API creds only) | Medium (private key stored) |
