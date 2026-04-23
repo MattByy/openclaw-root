@@ -7,11 +7,16 @@ You are Gremlin, the AI developer for ClawMode. This repo builds the Docker imag
 ```
 openclaw-root/
 ├── Dockerfile                     ← Extends phioranex/openclaw-docker, copies dashboards in
+├── .dockerignore                  ← Excludes secrets + bloat from the build context
 ├── dashboards/                    ← All agent dashboards (your main workspace)
 │   ├── hub/index.html             ← Agent launcher — shows cards for active agents
 │   ├── polymarket/index.html      ← Polymarket trading dashboard
 │   ├── scout/index.html           ← Research agent dashboard
+│   ├── _serve.py                  ← Python server with /_proxy for CORS-less APIs
 │   └── {slug}/index.html          ← Pattern: one folder per agent type
+├── control-ui-patches/            ← Small JS patches injected into OpenClaw's Control UI
+│   ├── clawauth.js                ← Token capture + auto-connect
+│   └── clawdash.js                ← Floating dashboard button on *.oc.clawmode.ai
 ├── .github/workflows/build.yml    ← Builds + pushes image to GHCR on push to main
 ├── CLAUDE.md                      ← This file (you are reading it)
 └── README.md
@@ -20,17 +25,58 @@ openclaw-root/
 ## How the system works
 
 1. This repo builds a Docker image: `ghcr.io/mattbyy/openclaw-root:latest`
-2. The image extends `ghcr.io/phioranex/openclaw-docker:latest` (stock OpenClaw)
-3. The Dockerfile COPIES `dashboards/` into `/opt/clawmode/dashboards/` in the image
-4. At deploy time, an n8n workflow generates an `entrypoint.sh` that:
+2. The image extends `ghcr.io/phioranex/openclaw-docker` — **pinned to a sha256 digest** so rebuilds are reproducible (see _Bumping the base image_ below)
+3. The image runs as the unprivileged `node` user. All root-needing work (apt/pip/npm/playwright) happens before a final `USER node` switch.
+4. The Dockerfile COPIES `dashboards/` into `/opt/clawmode/dashboards/` in the image
+5. At deploy time, an n8n workflow generates an `entrypoint.sh` that:
    - Reads `CLAWMODE_AGENTS` env var (e.g. `"polymarket,scout"`)
    - Copies matching dashboards from `/opt/clawmode/dashboards/{slug}/` into the OpenClaw workspace
    - Injects env vars (wallet addresses, API keys) into dashboard HTML
-   - Starts a Python HTTP server on port 3333 to serve the dashboards
+   - Starts the dashboard server on port 3333 (**must be `_serve.py`**, not bare `http.server` — see polymarket CORS note below)
    - Starts the OpenClaw gateway on port 18789
-5. The n8n workflow also generates `openclaw.json`, `.env`, workspace files (SOUL.md, IDENTITY.md, etc.), and mounts skills — none of that lives in this repo
+6. The n8n workflow also generates `openclaw.json`, `.env`, workspace files (SOUL.md, IDENTITY.md, etc.), and mounts skills — none of that lives in this repo
 
 **You only control what's in this repo: the Dockerfile and the dashboards. All agent config, skills, channels, and secrets are managed by n8n at deploy time.**
+
+## Non-root entrypoint requirements
+
+The image now runs as `USER node`. n8n's generated entrypoint must be compatible:
+
+- **Do not use `su -s /bin/sh node -c "..."` wrappers.** `su` to an unprivileged user fails when the caller is already unprivileged. Run commands directly — the process is already `node`.
+- **`.env` ownership must be `node:node`, not `root:root`.** If the Config Builder does `chown root:root /home/node/.openclaw/.env` + `chmod 600`, the node process can't read its own config. Use `chown node:node` (or skip chown — files created by the node process already land as node:node) and keep `chmod 600`.
+- Everything the runtime writes to (`/home/node`, `/opt/clawmode`, `$PLAYWRIGHT_BROWSERS_PATH=/ms-playwright`) is already chown'd to node by the Dockerfile.
+- The gateway start command in the entrypoint should be just `node /app/openclaw.mjs gateway --bind lan --port 18789` — no `su` prefix.
+
+If any of these aren't met, the container will fail at startup as node. As a rollback, drop the `USER node` line from the Dockerfile and note the regression here.
+
+## Healthcheck
+
+The image defines `HEALTHCHECK CMD curl -fsS http://127.0.0.1:18789/healthz`. Dokploy and `docker ps` will surface the container's health based on whether the OpenClaw gateway is responding. Start-period is 60s to cover gateway boot.
+
+## Bumping the base image
+
+The base image is pinned to `ghcr.io/phioranex/openclaw-docker@sha256:…`. To update:
+
+```bash
+docker pull ghcr.io/phioranex/openclaw-docker:latest
+docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/phioranex/openclaw-docker:latest
+# Copy the sha256:… suffix and paste it into the FROM line in the Dockerfile.
+```
+
+## Build + test locally
+
+```bash
+docker build -t openclaw-root:test .
+
+# Smoke checks:
+docker run --rm --entrypoint sh openclaw-root:test -c 'whoami'                 # → node
+docker run --rm --entrypoint sh openclaw-root:test -c 'which node python3 libreoffice chromium-browser'
+docker run --rm --entrypoint sh openclaw-root:test -c 'npx playwright --version'
+docker run --rm --entrypoint sh openclaw-root:test -c 'grep clawauth /app/dist/control-ui/index.html'
+
+# Run with gateway + dashboards:
+docker run --rm -p 18789:18789 -p 3333:3333 openclaw-root:test
+```
 
 ## Dashboard rules
 

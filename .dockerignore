@@ -1,0 +1,11 @@
+.env
+.env.*
+*.key
+*.pem
+.git
+.github
+node_modules
+*.log
+.DS_Store
+prompt.md
+connection.md

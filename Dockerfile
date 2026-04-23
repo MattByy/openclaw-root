@@ -3,11 +3,22 @@
 # ============================================================
 # Bakes all runtime deps + static UI patches + CLI symlink into
 # the image. Customer containers start in ~30s instead of 5-10min.
+#
+# Runs as the unprivileged `node` user by default. n8n's generated
+# entrypoint must be compatible (no `su` wrappers, .env chown'd to
+# node:node) — see Claude.md § Non-root entrypoint requirements.
 # ============================================================
 
-FROM ghcr.io/phioranex/openclaw-docker:latest
+# Pinned to digest so rebuilds are reproducible. To bump:
+#   docker pull ghcr.io/phioranex/openclaw-docker:latest
+#   docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/phioranex/openclaw-docker:latest
+FROM ghcr.io/phioranex/openclaw-docker@sha256:366fd80cc4b3b2051167e2a24daa01136cc8db4d56fa20c441dfdb54922a2127
 
 USER root
+
+# Shared playwright browser cache — writable by root at install time,
+# later chown'd to node so the non-root runtime can launch chromium.
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 # ------------------------------------------------------------
 # System packages
@@ -69,7 +80,6 @@ RUN chmod -R a+r /opt/clawmode/dashboards \
 
 # ------------------------------------------------------------
 # Control UI static patches (auth + dashboard button)
-# Copy JS files from repo instead of inline heredoc (more reliable)
 # ------------------------------------------------------------
 COPY control-ui-patches/clawauth.js /app/dist/control-ui/assets/clawauth.js
 COPY control-ui-patches/clawdash.js /app/dist/control-ui/assets/clawdash.js
@@ -82,7 +92,19 @@ RUN INDEX="/app/dist/control-ui/index.html" \
       sed -i 's|</head>|<script src="./assets/clawdash.js"></script></head>|' "$INDEX"; \
     fi
 
+# ------------------------------------------------------------
+# Ownership handoff — everything the node user needs to read or
+# write at runtime must be node-owned before we drop privileges.
+# ------------------------------------------------------------
+RUN chown -R node:node /home/node /opt/clawmode "$PLAYWRIGHT_BROWSERS_PATH"
+
 EXPOSE 3333 18789
 
-# Entrypoint is mounted per-customer by Dokploy at /entrypoint.sh
+# curl is installed above; healthz is served by the gateway on 18789.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD curl -fsS http://127.0.0.1:18789/healthz || exit 1
+
+USER node
+
+# Entrypoint is mounted per-customer by Dokploy at /entrypoint.sh.
 # Dokploy start command: sh /entrypoint.sh
