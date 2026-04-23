@@ -35,6 +35,18 @@ class Handler(SimpleHTTPRequestHandler):
             return
         return super().do_GET()
 
+    def do_HEAD(self):
+        # Dashboards probe /_proxy to decide routing. Without an explicit
+        # HEAD handler the default falls through to file-serving, returns
+        # 404, and the dashboards silently bypass the proxy.
+        if self.path.startswith('/_proxy'):
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            return
+        return super().do_HEAD()
+
     def log_message(self, fmt, *args):
         pass  # quiet
 

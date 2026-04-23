@@ -2104,18 +2104,27 @@
     }
   })();
   // ---------- PROXY FETCH ----------
+  // gamma-api.polymarket.com does NOT return CORS headers, so browser calls
+  // to it are blocked unless routed through the container's /_proxy endpoint
+  // (implemented by dashboards/_serve.py). data-api and clob do send
+  // Access-Control-Allow-Origin: *, so they work direct — but routing them
+  // through /_proxy is fine too.
   const PROXY_HOSTS = ['gamma-api.polymarket.com','data-api.polymarket.com','clob.polymarket.com'];
   // Detect if /_proxy exists (deployed n8n container). If not (local dev,
   // bare python http.server), skip the proxy entirely.
+  //
+  // Probe uses GET, not HEAD: _serve.py only overrides do_GET, so a HEAD
+  // request falls through to SimpleHTTPRequestHandler.do_HEAD which tries
+  // to serve /_proxy as a file and returns 404 even when the proxy IS
+  // running. GET hits the handler and returns a real response.
   //
   // Single shared probe promise so concurrent pfetch() callers don't each
   // hit /_proxy and spam 404s in the console during local dev.
   let _proxyAvailable = null; // null = unknown, true/false once resolved
   const _proxyProbe = fetch(
-    '/_proxy?url=' + encodeURIComponent('https://data-api.polymarket.com/time'),
-    { method: 'HEAD' }
+    '/_proxy?url=' + encodeURIComponent('https://data-api.polymarket.com/')
   ).then(
-    r => { _proxyAvailable = r.ok || r.status !== 404; },
+    r => { _proxyAvailable = r.status !== 404; },
     () => { _proxyAvailable = false; }
   ).then(() => {
     console.log('[pfetch] proxy available:', _proxyAvailable);
@@ -2347,30 +2356,71 @@
 
   // ================================================================
   // PORTFOLIO / POSITIONS / TRADES (from data-api)
+  //
+  // Polymarket's data-api keys positions by PROXY WALLET, not by the EOA
+  // signer. If only an EOA is supplied, /positions?user=EOA returns [] —
+  // which looks like an empty account. resolveProxyWallet() asks Gamma's
+  // public-profile endpoint for the proxy address tied to that EOA and
+  // caches it, so all queries from here on hit the address that actually
+  // holds the positions.
   // ================================================================
+  async function resolveProxyWallet(addr) {
+    if (!addr) return null;
+    try {
+      const p = await fetchJson(GAMMA + '/public-profile?address=' + addr);
+      const resolved = p && p.proxyWallet ? p.proxyWallet : null;
+      if (resolved && resolved.toLowerCase() !== addr.toLowerCase()) return resolved;
+    } catch (e) {
+      console.warn('public-profile lookup failed', e);
+    }
+    return null;
+  }
+
+  // Address actually used for data-api calls. Resolved lazily on first
+  // loadPortfolio() call if we only have an EOA.
+  let DATA_ADDR = null;
+
   async function loadPortfolio() {
     if (!WALLET) return;
+    // Prefer an explicitly-injected proxy wallet; otherwise resolve from
+    // whatever WALLET points at. If the lookup fails (network error or the
+    // wallet was never onboarded to Polymarket), fall back to WALLET — an
+    // empty result is still better than no result.
+    if (!DATA_ADDR) {
+      DATA_ADDR = PROXY || (await resolveProxyWallet(WALLET)) || WALLET;
+      if (DATA_ADDR && DATA_ADDR.toLowerCase() !== WALLET.toLowerCase()) {
+        console.log('[portfolio] resolved proxy wallet', WALLET, '->', DATA_ADDR);
+      }
+    }
+    const addr = DATA_ADDR;
     $('hSync').textContent = '...';
     try {
       // /activity returns TRADE + REDEEM + REWARD + SPLIT/MERGE/CONVERSION events with usdcSize.
       // We need REDEEM/REWARD to compute correct realized P&L (settlement payouts).
       const [pos, act, valArr] = await Promise.all([
-        fetchJson(DATA_API + '/positions?user=' + WALLET).catch(()=>[]),
-        fetchJson(DATA_API + '/activity?user=' + WALLET + '&limit=500').catch(()=>[]),
-        fetchJson(DATA_API + '/value?user=' + WALLET).catch(()=>[])
+        fetchJson(DATA_API + '/positions?user=' + addr).catch(()=>[]),
+        fetchJson(DATA_API + '/activity?user=' + addr + '&limit=500').catch(()=>[]),
+        fetchJson(DATA_API + '/value?user=' + addr).catch(()=>[])
       ]);
       positions = Array.isArray(pos) ? pos : [];
       activity  = Array.isArray(act) ? act : [];
       // Trades table only shows TRADE-type events (preserve existing rendering shape)
       trades = activity.filter(e => (e.type || 'TRADE').toUpperCase() === 'TRADE');
       portfolioValue = Array.isArray(valArr) && valArr[0] ? (valArr[0].value || 0) : 0;
-      pnlSummary = computePnl(activity, portfolioValue, WALLET);
+      pnlSummary = computePnl(activity, portfolioValue, addr);
       renderKpis();
       renderPositions();
       renderTrades();
       renderChart();
       $('hSync').textContent = hhmmss();
-      $('hWallet').textContent = shortAddr(WALLET);
+      // Show the address that actually owns the positions. If it's a
+      // proxy distinct from the injected EOA, tooltip shows both so the
+      // user can see the resolution happened.
+      const h = $('hWallet');
+      h.textContent = shortAddr(addr);
+      h.title = (addr && addr.toLowerCase() !== WALLET.toLowerCase())
+        ? ('Proxy: ' + addr + '\nSigner: ' + WALLET)
+        : addr;
       // no chat spam — sync time shown in topbar hSync; errors go to console
     } catch (e) {
       console.warn('sync failed', e);
@@ -3124,6 +3174,7 @@
   window.updateWallet = function(addr, proxy) {
     WALLET = addr || null;
     PROXY = proxy || null;
+    DATA_ADDR = null; // force re-resolve on next loadPortfolio()
     window.__POLYMARKET_WALLET_ADDRESS__ = WALLET;
     if (PREFS) { PREFS.wallet = WALLET; savePrefs(PREFS); }
     $('hWallet').textContent = WALLET ? shortAddr(WALLET) : 'NOT SET';
@@ -4661,9 +4712,12 @@
     return null;
   }
   async function refreshCash() {
+    // USDC.e lives on the Polymarket account (proxy wallet), not the
+    // signer EOA. Prefer DATA_ADDR (resolved proxy used for data-api),
+    // then an explicitly-connected creds address, then the raw WALLET.
     const c = window.__POLYMARKET_CREDS__;
-    if (!c || !c.address) { $('hCash').textContent = '—'; return; }
-    const addr = c.address;
+    const addr = DATA_ADDR || (c && c.address) || WALLET;
+    if (!addr) { $('hCash').textContent = '—'; return; }
     const bal = await fetchUsdcBalance(addr);
     if (bal != null) {
       CASH_USDC = bal;

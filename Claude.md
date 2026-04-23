@@ -38,7 +38,7 @@ openclaw-root/
 
 - One `index.html` per agent — all CSS and JS inline
 - No build steps, no npm, no frameworks, no bundlers
-- Must work when served via `python3 -m http.server`
+- Served in production by `dashboards/_serve.py` (Python `SimpleHTTPRequestHandler` + a `/_proxy` endpoint). The n8n-generated entrypoint MUST start the dashboard server as `python3 /opt/clawmode/dashboards/_serve.py /home/node/.openclaw/dashboards 3333`, NOT bare `python3 -m http.server 3333` — `gamma-api.polymarket.com` does not send CORS headers, so polymarket's trending / market browser calls fail in the browser without the proxy. `data-api` and `clob` do send CORS `*` and would work direct, but the proxy handles all three uniformly.
 - Can load fonts from Google Fonts CDN
 - Can load libraries from cdnjs.cloudflare.com if absolutely needed (Chart.js, Three.js, etc.)
 - No localStorage for critical state (containers are ephemeral)
@@ -117,10 +117,12 @@ For Dockerfile or structural changes, use a branch and ask Matas to review befor
 ### Quick test: just the dashboard
 
 ```bash
-cd dashboards/polymarket
-python3 -m http.server 8080
-# Open http://localhost:8080
+# From repo root — _serve.py provides /_proxy for the gamma-api CORS workaround.
+python3 dashboards/_serve.py dashboards 8080
+# Open http://localhost:8080/polymarket/
 ```
+
+Bare `python3 -m http.server` will load the page but Polymarket's trending + market browser panels will be empty (CORS-blocked on gamma-api).
 
 To test with a real wallet address, add this to the browser console:
 ```javascript
