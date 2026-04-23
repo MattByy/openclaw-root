@@ -98,6 +98,18 @@ RUN INDEX="/app/dist/control-ui/index.html" \
 # ------------------------------------------------------------
 RUN chown -R node:node /home/node /opt/clawmode "$PLAYWRIGHT_BROWSERS_PATH"
 
+# ------------------------------------------------------------
+# Narrow sudo escape hatch for the non-root entrypoint.
+# Dokploy mounts /home/node/.openclaw as a fresh volume owned by
+# root; the node-user entrypoint needs exactly one privileged call
+# to re-chown it before writing config. No password, no other
+# commands — locked to this one invocation.
+# ------------------------------------------------------------
+RUN apt-get update && apt-get install -y --no-install-recommends sudo \
+ && rm -rf /var/lib/apt/lists/* \
+ && echo 'node ALL=(root) NOPASSWD: /bin/chown -R node\:node /home/node/.openclaw*' > /etc/sudoers.d/node-chown \
+ && chmod 440 /etc/sudoers.d/node-chown
+
 EXPOSE 3333 18789
 
 # curl is installed above; healthz is served by the gateway on 18789.
