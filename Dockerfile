@@ -4,9 +4,12 @@
 # Bakes all runtime deps + static UI patches + CLI symlink into
 # the image. Customer containers start in ~30s instead of 5-10min.
 #
-# Runs as the unprivileged `node` user by default. n8n's generated
-# entrypoint must be compatible (no `su` wrappers, .env chown'd to
-# node:node) — see Claude.md § Non-root entrypoint requirements.
+# The container starts as root so the entrypoint can chown the
+# Docker-mounted /home/node/.openclaw volume, then drops to node
+# via `setpriv --reuid=node --regid=node` (util-linux, present by
+# default on the bookworm base — no apt install needed). setpriv
+# only drops privileges, so it is compatible with Dokploy's
+# no-new-privileges security option, which blocks sudo.
 # ============================================================
 
 # Pinned to digest so rebuilds are reproducible. To bump:
@@ -98,25 +101,16 @@ RUN INDEX="/app/dist/control-ui/index.html" \
 # ------------------------------------------------------------
 RUN chown -R node:node /home/node /opt/clawmode "$PLAYWRIGHT_BROWSERS_PATH"
 
-# ------------------------------------------------------------
-# Narrow sudo escape hatch for the non-root entrypoint.
-# Dokploy mounts /home/node/.openclaw as a fresh volume owned by
-# root; the node-user entrypoint needs exactly one privileged call
-# to re-chown it before writing config. No password, no other
-# commands — locked to this one invocation.
-# ------------------------------------------------------------
-RUN apt-get update && apt-get install -y --no-install-recommends sudo \
- && rm -rf /var/lib/apt/lists/* \
- && echo 'node ALL=(root) NOPASSWD: /bin/chown -R node\:node /home/node/.openclaw*' > /etc/sudoers.d/node-chown \
- && chmod 440 /etc/sudoers.d/node-chown
-
 EXPOSE 3333 18789
 
 # curl is installed above; healthz is served by the gateway on 18789.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD curl -fsS http://127.0.0.1:18789/healthz || exit 1
 
-USER node
-
+# Container starts as root. The n8n-generated entrypoint chowns
+# Docker-mounted volumes, then drops to node via
+#   setpriv --reuid=node --regid=node --init-groups -- <cmd>
+# before starting the gateway.
+#
 # Entrypoint is mounted per-customer by Dokploy at /entrypoint.sh.
 # Dokploy start command: sh /entrypoint.sh
